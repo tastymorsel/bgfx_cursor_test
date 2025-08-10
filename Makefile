@@ -8,8 +8,17 @@ SRCDIR = src
 SOURCES = $(wildcard $(SRCDIR)/*.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 
-# Target executable
-TARGET = asteroids
+# Detect OS
+ifeq ($(OS),Windows_NT)
+    TARGET = asteroids.exe
+    RM = del /Q
+    CXXFLAGS += -DWIN32
+    LIBS += -lopengl32 -lgdi32 -luser32 -lkernel32
+else
+    TARGET = asteroids
+    RM = rm -f
+    LIBS += -lGL -lGLU -ldl -lpthread -lm
+endif
 
 # Default target
 all: $(TARGET)
@@ -24,7 +33,7 @@ $(TARGET): $(OBJECTS)
 
 # Clean build artifacts
 clean:
-	rm -f $(OBJECTS) $(TARGET)
+	$(RM) $(OBJECTS) $(TARGET)
 
 # Install dependencies (Ubuntu/Debian)
 install-deps:
@@ -39,4 +48,14 @@ install-deps-arch:
 install-deps-fedora:
 	sudo dnf install gcc-c++ cmake glfw-devel mesa-libGL-devel mesa-libGLU-devel
 
-.PHONY: all clean install-deps install-deps-arch install-deps-fedora
+# Install dependencies (Windows)
+install-deps-windows:
+	@echo "Installing dependencies on Windows..."
+	@echo "1. Install MSYS2 from https://www.msys2.org/"
+	@echo "2. Open MSYS2 terminal and run:"
+	@echo "   pacman -S mingw-w64-x86_64-toolchain"
+	@echo "   pacman -S mingw-w64-x86_64-glfw"
+	@echo "   pacman -S mingw-w64-x86_64-opengl-headers"
+	@echo "3. Add MSYS2 mingw64/bin to your PATH"
+
+.PHONY: all clean install-deps install-deps-arch install-deps-fedora install-deps-windows

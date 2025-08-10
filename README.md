@@ -58,12 +58,26 @@ A modern C++ implementation of the classic Asteroids arcade game with psychedeli
 - GLFW3 development libraries
 
 ### Quick Build
+
+#### Linux/macOS
 ```bash
 # Make the build script executable
 chmod +x build.sh
 
 # Run the build script
 ./build.sh
+```
+
+#### Windows
+```cmd
+# Using Command Prompt
+build.bat
+
+# Using PowerShell
+.\build.ps1
+
+# Using MSYS2/MinGW
+make
 ```
 
 ### Manual Build
@@ -77,14 +91,29 @@ sudo pacman -S base-devel cmake glfw-x11 mesa glu
 # Install dependencies (Fedora)
 sudo dnf install gcc-c++ cmake glfw-devel mesa-libGL-devel mesa-libGLU-devel
 
+# Install dependencies (Windows)
+# 1. Install MSYS2 from https://www.msys2.org/
+# 2. Open MSYS2 terminal and run:
+#    pacman -S mingw-w64-x86_64-toolchain
+#    pacman -S mingw-w64-x86_64-glfw
+#    pacman -S mingw-w64-x86_64-opengl-headers
+# 3. Add MSYS2 mingw64/bin to your PATH
+
 # Build the project
 make clean
 make -j$(nproc)
 ```
 
 ### Running
+
+#### Linux/macOS
 ```bash
 ./asteroids
+```
+
+#### Windows
+```cmd
+asteroids.exe
 ```
 
 ## Project Structure
@@ -122,8 +151,12 @@ make -j$(nproc)
 │   ├── bgfx/               # bgfx headers
 │   └── miniaudio/          # miniaudio headers
 ├── CMakeLists.txt          # CMake build configuration
+├── CMakeLists_Windows.txt  # Windows-specific CMake configuration
 ├── Makefile                # Make-based build system
-├── build.sh                # Automated build script
+├── build.sh                # Linux/macOS build script
+├── build.bat               # Windows Command Prompt build script
+├── build.ps1               # Windows PowerShell build script
+├── install-deps-windows.bat # Windows dependency installer
 └── README.md               # This file
 ```
 
@@ -170,6 +203,43 @@ make -j$(nproc)
 - **miniaudio**: Windows, macOS, Linux audio support
 - **GLFW**: Cross-platform window management
 - **Modern C++**: Standard library features for portability
+
+## Troubleshooting
+
+### Windows Build Issues
+
+1. **"g++ not found" error:**
+   - Install MSYS2 from https://www.msys2.org/
+   - Add `C:\msys64\mingw64\bin` to your PATH environment variable
+   - Restart your terminal/IDE
+
+2. **"GLFW3 not found" error:**
+   - In MSYS2 terminal: `pacman -S mingw-w64-x86_64-glfw`
+   - Ensure MSYS2 mingw64/bin is in your PATH
+
+3. **"OpenGL not found" error:**
+   - In MSYS2 terminal: `pacman -S mingw-w64-x86_64-opengl-headers`
+   - Windows includes OpenGL drivers by default
+
+4. **Build fails with linking errors:**
+   - Use the Windows-specific CMakeLists.txt: `cmake -f CMakeLists_Windows.txt`
+   - Ensure you're using MinGW-w64, not MSVC
+
+### Linux Build Issues
+
+1. **Missing GLFW3:**
+   ```bash
+   sudo apt-get install libglfw3-dev  # Ubuntu/Debian
+   sudo pacman -S glfw-x11           # Arch
+   sudo dnf install glfw-devel       # Fedora
+   ```
+
+2. **Missing OpenGL:**
+   ```bash
+   sudo apt-get install libgl1-mesa-dev libglu1-mesa-dev  # Ubuntu/Debian
+   sudo pacman -S mesa glu                                # Arch
+   sudo dnf install mesa-libGL-devel mesa-libGLU-devel    # Fedora
+   ```
 
 ## Future Enhancements
 
