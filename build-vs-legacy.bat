@@ -26,6 +26,23 @@ cd build-vs
 
 echo Copying CMakeLists file for compatibility...
 copy "..\CMakeLists_Windows_NoPkgConfig.txt" "CMakeLists.txt" >nul
+if errorlevel 1 (
+    echo Error: Failed to copy CMakeLists file.
+    pause
+    exit /b 1
+)
+
+echo Verifying CMakeLists file...
+findstr /i "pkg-config" CMakeLists.txt >nul 2>&1
+if not errorlevel 1 (
+    echo Error: CMakeLists file still contains pkg-config references.
+    echo This should not happen with CMakeLists_Windows_NoPkgConfig.txt
+    pause
+    exit /b 1
+)
+
+echo CMakeLists file verified - no pkg-config references found.
+echo.
 
 echo Configuring with CMake...
 cmake -G "Visual Studio 17 2022" -A x64 ..
