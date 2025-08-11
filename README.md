@@ -70,13 +70,19 @@ chmod +x build.sh
 
 #### Windows
 ```cmd
-# Using Command Prompt
+# Using Visual Studio (Recommended)
+build-vs.bat
+
+# Using PowerShell with Visual Studio
+.\build-vs.ps1
+
+# Using Command Prompt with MinGW (Alternative)
 build.bat
 
-# Using PowerShell
+# Using PowerShell with MinGW (Alternative)
 .\build.ps1
 
-# Using MSYS2/MinGW
+# Using MSYS2/MinGW directly
 make
 ```
 
@@ -92,6 +98,13 @@ sudo pacman -S base-devel cmake glfw-x11 mesa glu
 sudo dnf install gcc-c++ cmake glfw-devel mesa-libGL-devel mesa-libGLU-devel
 
 # Install dependencies (Windows)
+# Option A: Visual Studio (Recommended)
+# 1. Install Visual Studio 2022 Community (free) with C++ workload
+# 2. Install CMake from https://cmake.org/download/
+# 3. Install GLFW via vcpkg or download pre-built binaries
+#    Run: install-deps-vs.bat for detailed instructions
+
+# Option B: MSYS2/MinGW (Alternative)
 # 1. Install MSYS2 from https://www.msys2.org/
 # 2. Open MSYS2 terminal and run:
 #    pacman -S mingw-w64-x86_64-toolchain
@@ -152,11 +165,15 @@ asteroids.exe
 │   └── miniaudio/          # miniaudio headers
 ├── CMakeLists.txt          # CMake build configuration
 ├── CMakeLists_Windows.txt  # Windows-specific CMake configuration
+├── CMakeLists_VisualStudio.txt # Visual Studio CMake configuration
 ├── Makefile                # Make-based build system
 ├── build.sh                # Linux/macOS build script
-├── build.bat               # Windows Command Prompt build script
-├── build.ps1               # Windows PowerShell build script
-├── install-deps-windows.bat # Windows dependency installer
+├── build.bat               # Windows MinGW build script
+├── build.ps1               # Windows MinGW PowerShell build script
+├── build-vs.bat            # Windows Visual Studio build script
+├── build-vs.ps1            # Windows Visual Studio PowerShell build script
+├── install-deps-windows.bat # Windows MinGW dependency installer
+├── install-deps-vs.bat     # Windows Visual Studio dependency installer
 └── README.md               # This file
 ```
 
@@ -208,6 +225,26 @@ asteroids.exe
 
 ### Windows Build Issues
 
+#### Visual Studio Build Issues
+1. **"cl.exe not found" error:**
+   - Install Visual Studio 2019/2022 Community with C++ workload
+   - Run from "Developer Command Prompt for VS 2022"
+   - Or run `install-deps-vs.bat` for detailed instructions
+
+2. **"CMake not found" error:**
+   - Install CMake from https://cmake.org/download/
+   - Choose "Add CMake to system PATH for all users"
+
+3. **"GLFW not found" error:**
+   - Use vcpkg: `vcpkg install glfw3:x64-windows`
+   - Or download pre-built binaries to `third_party/glfw/`
+   - Run `install-deps-vs.bat` for detailed instructions
+
+4. **Build fails with linking errors:**
+   - Use `build-vs.bat` or `build-vs.ps1`
+   - Ensure you're using the Visual Studio toolchain, not MinGW
+
+#### MinGW Build Issues (Alternative)
 1. **"g++ not found" error:**
    - Install MSYS2 from https://www.msys2.org/
    - Add `C:\msys64\mingw64\bin` to your PATH environment variable

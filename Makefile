@@ -13,7 +13,15 @@ ifeq ($(OS),Windows_NT)
     TARGET = asteroids.exe
     RM = del /Q
     CXXFLAGS += -DWIN32
-    LIBS += -lopengl32 -lgdi32 -luser32 -lkernel32
+    # Visual Studio toolchain
+    ifeq ($(MSVC),1)
+        CXX = cl
+        CXXFLAGS = /std:c++17 /W4 /EHsc
+        LIBS = glfw3.lib opengl32.lib gdi32.lib user32.lib kernel32.lib
+    else
+        # Fallback to MinGW if MSVC not specified
+        LIBS += -lopengl32 -lgdi32 -luser32 -lkernel32
+    endif
 else
     TARGET = asteroids
     RM = rm -f
@@ -51,11 +59,13 @@ install-deps-fedora:
 # Install dependencies (Windows)
 install-deps-windows:
 	@echo "Installing dependencies on Windows..."
-	@echo "1. Install MSYS2 from https://www.msys2.org/"
-	@echo "2. Open MSYS2 terminal and run:"
-	@echo "   pacman -S mingw-w64-x86_64-toolchain"
-	@echo "   pacman -S mingw-w64-x86_64-glfw"
-	@echo "   pacman -S mingw-w64-x86_64-opengl-headers"
-	@echo "3. Add MSYS2 mingw64/bin to your PATH"
+	@echo "1. Install Visual Studio 2019/2022 Community (free)"
+	@echo "2. In Visual Studio Installer, select:"
+	@echo "   - Workloads > Desktop development with C++"
+	@echo "   - Individual components > MSVC v143/v142 compiler"
+	@echo "3. Download GLFW pre-built binaries from:"
+	@echo "   https://www.glfw.org/download.html"
+	@echo "4. Extract to third_party/glfw/"
+	@echo "5. Or use vcpkg: vcpkg install glfw3:x64-windows"
 
 .PHONY: all clean install-deps install-deps-arch install-deps-fedora install-deps-windows
