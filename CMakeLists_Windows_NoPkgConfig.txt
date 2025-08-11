@@ -15,8 +15,8 @@ if(WIN32)
     # Windows-specific compiler flags
     add_compile_options(/W4 /EHsc)
     
-    # Set Windows subsystem
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
+    # Set Windows subsystem to CONSOLE for GLFW compatibility
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:CONSOLE")
     
     # Disable pkg-config on Windows
     set(PKG_CONFIG_EXECUTABLE "")
