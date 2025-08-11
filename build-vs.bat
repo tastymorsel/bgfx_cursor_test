@@ -1,10 +1,12 @@
 @echo off
+setlocal enabledelayedexpansion
+
 echo Building Asteroids Game with Visual Studio...
 echo ===========================================
 
 REM Check if we're in a Visual Studio Developer Command Prompt
-where cl >nul 2>&1
-if %errorlevel% neq 0 (
+cl >nul 2>&1
+if errorlevel 1 (
     echo Error: Visual Studio C++ compiler (cl.exe) not found.
     echo.
     echo Please run this script from a Visual Studio Developer Command Prompt:
@@ -23,8 +25,8 @@ echo Found Visual Studio C++ compiler.
 echo.
 
 REM Check for CMake
-where cmake >nul 2>&1
-if %errorlevel% neq 0 (
+cmake --version >nul 2>&1
+if errorlevel 1 (
     echo Error: CMake not found.
     echo Please install CMake from https://cmake.org/download/
     pause
@@ -35,13 +37,15 @@ echo Found CMake.
 echo.
 
 REM Create build directory
-if not exist build-vs mkdir build-vs
-cd build-vs
+if not exist "build-vs" (
+    mkdir "build-vs"
+)
+cd "build-vs"
 
 REM Configure with CMake
 echo Configuring project with CMake...
-cmake -G "Visual Studio 17 2022" -A x64 -f ..\CMakeLists_VisualStudio.txt ..
-if %errorlevel% neq 0 (
+cmake -G "Visual Studio 17 2022" -A x64 -f "..\CMakeLists_VisualStudio.txt" ".."
+if errorlevel 1 (
     echo CMake configuration failed.
     pause
     exit /b 1
@@ -51,7 +55,7 @@ REM Build the project
 echo.
 echo Building project...
 cmake --build . --config Release
-if %errorlevel% neq 0 (
+if errorlevel 1 (
     echo Build failed.
     pause
     exit /b 1
@@ -64,5 +68,5 @@ echo.
 echo You can also open AsteroidsGame.sln in Visual Studio to build and debug.
 echo.
 
-cd ..
+cd ".."
 pause
