@@ -25,7 +25,7 @@ if not exist build-vs mkdir build-vs
 cd build-vs
 
 echo Configuring with CMake...
-cmake -G "Visual Studio 17 2022" -A x64 -f ..\CMakeLists_VisualStudio.txt ..
+cmake -f ..\CMakeLists_VisualStudio.txt -G "Visual Studio 17 2022" -A x64 ..
 if errorlevel 1 (
     echo CMake configuration failed.
     pause

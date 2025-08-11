@@ -44,7 +44,7 @@ cd "build-vs"
 
 REM Configure with CMake
 echo Configuring project with CMake...
-cmake -G "Visual Studio 17 2022" -A x64 -f "..\CMakeLists_VisualStudio.txt" ".."
+cmake -f "..\CMakeLists_VisualStudio.txt" -G "Visual Studio 17 2022" -A x64 ".."
 if errorlevel 1 (
     echo CMake configuration failed.
     pause

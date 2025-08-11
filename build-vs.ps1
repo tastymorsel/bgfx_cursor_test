@@ -49,7 +49,7 @@ Set-Location "build-vs"
 # Configure with CMake
 Write-Host "Configuring project with CMake..." -ForegroundColor Yellow
 try {
-    cmake -G "Visual Studio 17 2022" -A x64 -f "..\CMakeLists_VisualStudio.txt" ..
+    cmake -f "..\CMakeLists_VisualStudio.txt" -G "Visual Studio 17 2022" -A x64 ".."
     if ($LASTEXITCODE -ne 0) {
         throw "CMake configuration failed with exit code $LASTEXITCODE"
     }
