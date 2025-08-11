@@ -20,12 +20,29 @@ if errorlevel 1 (
     exit /b 1
 )
 
+REM Get CMake version for compatibility check
+for /f "tokens=3" %%i in ('cmake --version 2^>nul ^| findstr /r "cmake version"') do set CMAKE_VERSION=%%i
+echo Found CMake version: %CMAKE_VERSION%
+
 echo Creating build directory...
 if not exist build-vs mkdir build-vs
 cd build-vs
 
-echo Configuring with CMake...
-cmake -f ..\CMakeLists_VisualStudio.txt -G "Visual Studio 17 2022" -A x64 ..
+REM Check if CMake supports -f flag (CMake 3.13+)
+echo Checking CMake compatibility...
+cmake -f "..\CMakeLists_VisualStudio.txt" -G "Visual Studio 17 2022" -A x64 ".." >nul 2>&1
+if errorlevel 1 (
+    echo Using compatibility mode for older CMake version...
+    echo Copying CMakeLists file...
+    copy "..\CMakeLists_VisualStudio.txt" "CMakeLists.txt" >nul
+    echo Configuring with CMake...
+    cmake -G "Visual Studio 17 2022" -A x64 ..
+) else (
+    echo Using modern CMake with -f flag...
+    echo Configuring with CMake...
+    cmake -f "..\CMakeLists_VisualStudio.txt" -G "Visual Studio 17 2022" -A x64 ..
+)
+
 if errorlevel 1 (
     echo CMake configuration failed.
     pause

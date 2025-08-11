@@ -42,9 +42,13 @@ if not exist "build-vs" (
 )
 cd "build-vs"
 
+REM Copy CMakeLists file for older CMake versions
+echo Copying CMakeLists file...
+copy "..\CMakeLists_VisualStudio.txt" "CMakeLists.txt" >nul
+
 REM Configure with CMake
 echo Configuring project with CMake...
-cmake -f "..\CMakeLists_VisualStudio.txt" -G "Visual Studio 17 2022" -A x64 ".."
+cmake -G "Visual Studio 17 2022" -A x64 ".."
 if errorlevel 1 (
     echo CMake configuration failed.
     pause

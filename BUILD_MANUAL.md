@@ -22,10 +22,15 @@ cd build-vs
 
 #### 3. Configure with CMake
 ```cmd
+# For CMake 3.13+ (use -f flag)
 cmake -f "..\CMakeLists_VisualStudio.txt" -G "Visual Studio 17 2022" -A x64 ".."
+
+# For older CMake versions (copy file first)
+copy "..\CMakeLists_VisualStudio.txt" "CMakeLists.txt"
+cmake -G "Visual Studio 17 2022" -A x64 ".."
 ```
 
-**Note**: The `-f` flag must come BEFORE the generator specification.
+**Note**: The `-f` flag was introduced in CMake 3.13+. For older versions, copy the file first.
 
 #### 4. Build the Project
 ```cmd

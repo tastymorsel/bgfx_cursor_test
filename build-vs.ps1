@@ -46,10 +46,14 @@ if (!(Test-Path "build-vs")) {
 }
 Set-Location "build-vs"
 
+# Copy CMakeLists file for older CMake versions
+Write-Host "Copying CMakeLists file..." -ForegroundColor Yellow
+Copy-Item "..\CMakeLists_VisualStudio.txt" "CMakeLists.txt" -Force
+
 # Configure with CMake
 Write-Host "Configuring project with CMake..." -ForegroundColor Yellow
 try {
-    cmake -f "..\CMakeLists_VisualStudio.txt" -G "Visual Studio 17 2022" -A x64 ".."
+    cmake -G "Visual Studio 17 2022" -A x64 ".."
     if ($LASTEXITCODE -ne 0) {
         throw "CMake configuration failed with exit code $LASTEXITCODE"
     }
