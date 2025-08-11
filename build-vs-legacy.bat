@@ -33,15 +33,20 @@ if errorlevel 1 (
 )
 
 echo Verifying CMakeLists file...
-findstr /i "pkg-config" CMakeLists.txt >nul 2>&1
+REM Create a temporary file without comment lines
+findstr /v "^#" CMakeLists.txt > temp_check.txt
+REM Check for pkg-config usage in non-comment lines
+findstr /i "pkg-config" temp_check.txt >nul 2>&1
 if not errorlevel 1 (
-    echo Error: CMakeLists file still contains pkg-config references.
+    echo Error: CMakeLists file contains pkg-config usage (not just comments).
     echo This should not happen with CMakeLists_Windows_NoPkgConfig.txt
+    del temp_check.txt
     pause
     exit /b 1
 )
+del temp_check.txt
 
-echo CMakeLists file verified - no pkg-config references found.
+echo CMakeLists file verified - no pkg-config usage found.
 echo.
 
 echo Configuring with CMake...
