@@ -25,7 +25,7 @@ if not exist build-vs mkdir build-vs
 cd build-vs
 
 echo Copying CMakeLists file for compatibility...
-copy "..\CMakeLists_VisualStudio.txt" "CMakeLists.txt" >nul
+copy "..\CMakeLists_Windows_NoPkgConfig.txt" "CMakeLists.txt" >nul
 
 echo Configuring with CMake...
 cmake -G "Visual Studio 17 2022" -A x64 ..
