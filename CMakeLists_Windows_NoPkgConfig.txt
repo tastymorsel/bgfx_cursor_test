@@ -24,16 +24,50 @@ if(WIN32)
     # Find GLFW (try multiple locations)
     set(GLFW_DIRS
         "${CMAKE_SOURCE_DIR}/third_party/glfw"
+        "$ENV{VCPKG_ROOT}/installed/x64-windows"
+        "$ENV{VCPKG_ROOT}/installed/x64-windows-static"
         "C:/vcpkg/installed/x64-windows"
+        "C:/vcpkg/installed/x64-windows-static"
+        "C:/dev/vcpkg/installed/x64-windows"
+        "C:/tools/vcpkg/installed/x64-windows"
+        "$ENV{USERPROFILE}/vcpkg/installed/x64-windows"
+        "$ENV{USERPROFILE}/dev/vcpkg/installed/x64-windows"
+        "$ENV{USERPROFILE}/tools/vcpkg/installed/x64-windows"
         "C:/Program Files/GLFW"
         "C:/msys64/mingw64"
     )
+    
+    # Add current directory and parent directories to search path
+    get_filename_component(CURRENT_DIR ${CMAKE_SOURCE_DIR} NAME)
+    get_filename_component(PARENT_DIR ${CMAKE_SOURCE_DIR} PATH)
+    get_filename_component(GRANDPARENT_DIR ${PARENT_DIR} PATH)
+    
+    list(APPEND GLFW_DIRS
+        "${PARENT_DIR}/vcpkg/installed/x64-windows"
+        "${PARENT_DIR}/vcpkg/installed/x64-windows-static"
+        "${GRANDPARENT_DIR}/vcpkg/installed/x64-windows"
+        "${GRANDPARENT_DIR}/vcpkg/installed/x64-windows-static"
+    )
+    
+    # Remove duplicates and empty paths
+    list(REMOVE_DUPLICATES GLFW_DIRS)
+    list(REMOVE_ITEM GLFW_DIRS "")
+    
+    message(STATUS "Searching for GLFW in:")
+    foreach(dir ${GLFW_DIRS})
+        message(STATUS "  ${dir}")
+    endforeach()
     
     find_path(GLFW_INCLUDE_DIR NAMES GLFW/glfw3.h PATHS ${GLFW_DIRS} PATH_SUFFIXES include)
     find_library(GLFW_LIBRARY NAMES glfw3 glfw3dll PATHS ${GLFW_DIRS} PATH_SUFFIXES lib)
     
     if(NOT GLFW_INCLUDE_DIR OR NOT GLFW_LIBRARY)
-        message(FATAL_ERROR "GLFW not found. Please install GLFW or set GLFW_DIR")
+        message(FATAL_ERROR "GLFW not found. Please install GLFW or set VCPKG_ROOT environment variable.")
+        message(STATUS "Searched in:")
+        foreach(dir ${GLFW_DIRS})
+            message(STATUS "  ${dir}")
+        endforeach()
+        message(STATUS "You can also set VCPKG_ROOT environment variable to point to your vcpkg installation.")
     endif()
     
     message(STATUS "Found GLFW include: ${GLFW_INCLUDE_DIR}")
