@@ -36,10 +36,6 @@ public:
     float GetSFXVolume() const { return sfxVolume_; }
     
 private:
-    // Miniaudio context
-    ma_context context_;
-    ma_device device_;
-    
     // Audio buffers for procedural generation
     std::vector<float> shootBuffer_;
     std::vector<float> explosionBuffer_;

@@ -77,12 +77,34 @@ endif()
 # Find OpenGL (Windows has it built-in)
 find_package(OpenGL REQUIRED)
 
+# Find GLM (try to find it in common locations)
+set(GLM_DIRS
+    "${CMAKE_SOURCE_DIR}/third_party/glm"
+    "$ENV{VCPKG_ROOT}/installed/x64-windows"
+    "$ENV{VCPKG_ROOT}/installed/x64-windows-static"
+    "C:/vcpkg/installed/x64-windows"
+    "C:/vcpkg/installed/x64-windows-static"
+    "C:/dev/vcpkg/installed/x64-windows"
+    "C:/tools/vcpkg/installed/x64-windows"
+    "$ENV{USERPROFILE}/vcpkg/installed/x64-windows"
+    "$ENV{USERPROFILE}/dev/vcpkg/installed/x64-windows"
+    "$ENV{USERPROFILE}/tools/vcpkg/installed/x64-windows"
+)
+
+find_path(GLM_INCLUDE_DIR NAMES glm/glm.hpp PATHS ${GLM_DIRS} PATH_SUFFIXES include)
+if(NOT GLM_INCLUDE_DIR)
+    message(FATAL_ERROR "GLM not found. Please install GLM or set VCPKG_ROOT environment variable.")
+endif()
+message(STATUS "Found GLM include: ${GLM_INCLUDE_DIR}")
+
 # Include directories
 include_directories(${CMAKE_SOURCE_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR}/third_party/bgfx/include)
 include_directories(${CMAKE_SOURCE_DIR}/third_party/miniaudio)
+include_directories(${CMAKE_SOURCE_DIR}/third_party/glm)
 if(WIN32)
     include_directories(${GLFW_INCLUDE_DIR})
+    include_directories(${GLM_INCLUDE_DIR})
 endif()
 
 # Source files
@@ -97,6 +119,8 @@ set(SOURCES
     src/bullet.cpp
     src/particle_system.cpp
     src/shader_utils.cpp
+    third_party/bgfx/src/bgfx.cpp
+    third_party/miniaudio/miniaudio.cpp
 )
 
 # Create executable

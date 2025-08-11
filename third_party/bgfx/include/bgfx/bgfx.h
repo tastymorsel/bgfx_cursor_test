@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 
 namespace bgfx {
     // Handle types
@@ -9,6 +10,9 @@ namespace bgfx {
     struct VertexBufferHandle { uint16_t idx; };
     struct IndexBufferHandle { uint16_t idx; };
     struct UniformHandle { uint16_t idx; };
+    
+    // View ID type
+    using ViewId = uint8_t;
     
     // Constants
     static const uint16_t BGFX_INVALID_HANDLE = 0xFFFF;
@@ -53,46 +57,10 @@ namespace bgfx {
         Float
     };
     
-    // Functions
-    bool init(const Init& init);
-    void shutdown();
-    void frame();
-    void setViewClear(uint8_t viewId, uint16_t flags, uint32_t rgba, float depth, uint8_t stencil);
-    void setViewRect(uint8_t viewId, uint16_t x, uint16_t y, uint16_t width, uint16_t height);
-    void setState(uint64_t state);
-    void setProgram(ProgramHandle program);
-    void setUniform(UniformHandle uniform, const void* value);
-    void setVertexBuffer(uint8_t stream, VertexBufferHandle handle);
-    void setIndexBuffer(IndexBufferHandle handle);
-    void submit(uint8_t viewId);
-    bool isValid(ShaderHandle handle);
-    bool isValid(ProgramHandle handle);
-    bool isValid(VertexBufferHandle handle);
-    bool isValid(IndexBufferHandle handle);
-    bool isValid(UniformHandle handle);
-    void destroy(ShaderHandle handle);
-    void destroy(ProgramHandle handle);
-    void destroy(VertexBufferHandle handle);
-    void destroy(IndexBufferHandle handle);
-    void destroy(UniformHandle handle);
-    
-    // Handle validation
-    template<typename T>
-    bool isValid(T handle) { return handle.idx != BGFX_INVALID_HANDLE; }
-    
-    // Copy functions
-    template<typename T>
-    const bgfx::Memory* copy(const T* data, uint32_t size) {
-        // Placeholder implementation
-        return nullptr;
-    }
-    
-    // Vertex layout
-    class VertexLayout {
-    public:
-        VertexLayout& begin() { return *this; }
-        VertexLayout& add(Attrib attrib, uint8_t num, AttribType type) { return *this; }
-        VertexLayout& end() { return *this; }
+    // Memory structure
+    struct Memory {
+        const uint8_t* data;
+        uint32_t size;
     };
     
     // Init structure
@@ -105,14 +73,68 @@ namespace bgfx {
         } resolution;
     };
     
-    // Memory structure
-    struct Memory {
-        const uint8_t* data;
-        uint32_t size;
+    // Vertex layout
+    class VertexLayout {
+    public:
+        VertexLayout& begin() { return *this; }
+        VertexLayout& add(Attrib attrib, uint8_t num, AttribType type) { return *this; }
+        VertexLayout& end() { return *this; }
     };
     
-    // Create functions
+    // Functions
+    bool init(const Init& init);
+    void shutdown();
+    void frame();
+    void setViewClear(uint8_t viewId, uint16_t flags, uint32_t rgba, float depth, uint8_t stencil);
+    void setViewRect(uint8_t viewId, uint16_t x, uint16_t y, uint16_t width, uint16_t height);
+    void setState(uint64_t state);
+    void setProgram(ProgramHandle program);
+    void setUniform(UniformHandle uniform, const void* value);
+    void setVertexBuffer(uint8_t stream, VertexBufferHandle handle);
+    void setIndexBuffer(IndexBufferHandle handle);
+    void submit(uint8_t viewId);
+    
+    // Handle validation
+    template<typename T>
+    bool isValid(T handle) { return handle.idx != BGFX_INVALID_HANDLE; }
+    
+    // Shader creation
+    ShaderHandle createShader(const Memory* mem);
+    ShaderHandle createShader(const std::string& vertexShader, const std::string& fragmentShader);
+    
+    // Program creation
+    ProgramHandle createProgram(ShaderHandle vertexShader, ShaderHandle fragmentShader);
+    
+    // Buffer creation
     VertexBufferHandle createVertexBuffer(const Memory* mem, const VertexLayout& layout);
     IndexBufferHandle createIndexBuffer(const Memory* mem);
     UniformHandle createUniform(const char* name, UniformType type);
+    
+    // Handle validation functions
+    bool isValid(ShaderHandle handle);
+    bool isValid(ProgramHandle handle);
+    bool isValid(VertexBufferHandle handle);
+    bool isValid(IndexBufferHandle handle);
+    bool isValid(UniformHandle handle);
+    
+    // Cleanup functions
+    void destroy(ShaderHandle handle);
+    void destroy(ProgramHandle handle);
+    void destroy(VertexBufferHandle handle);
+    void destroy(IndexBufferHandle handle);
+    void destroy(UniformHandle handle);
+    
+    // Copy functions
+    template<typename T>
+    const Memory* copy(const T* data, uint32_t size) {
+        // Placeholder implementation
+        return nullptr;
+    }
+    
+    // Shader loading helpers
+    Memory* alloc(uint32_t size);
+    void release(const Memory* mem);
 }
+
+// Global bgfx instance (simplified for our needs)
+extern bgfx::Init g_bgfxInit;

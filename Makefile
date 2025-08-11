@@ -1,11 +1,13 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -O2
-INCLUDES = -Iinclude -Ithird_party/bgfx/include -Ithird_party/miniaudio
-LIBS = -lglfw -lGL -lGLU -ldl -lpthread -lm
+INCLUDES = -Iinclude -Ithird_party/bgfx/include -Ithird_party/miniaudio -Ithird_party/glm
+LIBS = -lglfw -lGL -ldl -lpthread -lm
 
 # Source files
 SRCDIR = src
 SOURCES = $(wildcard $(SRCDIR)/*.cpp)
+SOURCES += third_party/bgfx/src/bgfx.cpp
+SOURCES += third_party/miniaudio/miniaudio.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
 
 # Detect OS
@@ -25,7 +27,7 @@ ifeq ($(OS),Windows_NT)
 else
     TARGET = asteroids
     RM = rm -f
-    LIBS += -lGL -lGLU -ldl -lpthread -lm
+    LIBS += -ldl -lpthread -lm
 endif
 
 # Default target

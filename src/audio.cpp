@@ -1,29 +1,17 @@
 #include "audio.hpp"
 #include <iostream>
 #include <cmath>
+#include <random>
+#include <algorithm>
 
 Audio::Audio()
     : masterVolume_(1.0f)
     , sfxVolume_(1.0f)
     , musicVolume_(0.7f) {
     
-    // Initialize miniaudio context
-    ma_result result = ma_context_init(nullptr, 0, nullptr, &context_);
-    if (result != MA_SUCCESS) {
-        std::cerr << "Failed to initialize miniaudio context" << std::endl;
-        return;
-    }
-    
-    // Configure device
-    ma_device_config deviceConfig = ma_device_config_init(ma_device_type_playback);
-    deviceConfig.playback.format = ma_format_f32;
-    deviceConfig.playback.channels = 1;
-    deviceConfig.sampleRate = SAMPLE_RATE;
-    deviceConfig.dataCallback = nullptr; // We'll use manual playback
-    
-    result = ma_device_init(&context_, &deviceConfig, &device_);
-    if (result != MA_SUCCESS) {
-        std::cerr << "Failed to initialize miniaudio device" << std::endl;
+    // Initialize miniaudio engine
+    if (!g_audioEngine.init()) {
+        std::cerr << "Failed to initialize miniaudio engine" << std::endl;
         return;
     }
     
@@ -38,19 +26,12 @@ Audio::~Audio() {
 }
 
 bool Audio::Initialize() {
-    // Start the device
-    ma_result result = ma_device_start(&device_);
-    if (result != MA_SUCCESS) {
-        std::cerr << "Failed to start audio device" << std::endl;
-        return false;
-    }
-    
+    // Audio engine is already initialized in constructor
     return true;
 }
 
 void Audio::Shutdown() {
-    ma_device_uninit(&device_);
-    ma_context_uninit(&context_);
+    g_audioEngine.uninit();
 }
 
 void Audio::PlayShootSound() {
@@ -82,7 +63,7 @@ void Audio::StopBackgroundMusic() {
 }
 
 void Audio::SetMusicVolume(float volume) {
-    musicVolume_ = std::clamp(volume, 0.0f, 1.0f);
+    musicVolume_ = std::max(0.0f, std::min(volume, 1.0f));
 }
 
 void Audio::GenerateShootTone(float frequency, float duration) {
@@ -98,11 +79,11 @@ void Audio::GenerateHitTone(float frequency, float duration) {
 }
 
 void Audio::SetMasterVolume(float volume) {
-    masterVolume_ = std::clamp(volume, 0.0f, 1.0f);
+    masterVolume_ = std::max(0.0f, std::min(volume, 1.0f));
 }
 
 void Audio::SetSFXVolume(float volume) {
-    sfxVolume_ = std::clamp(volume, 0.0f, 1.0f);
+    sfxVolume_ = std::max(0.0f, std::min(volume, 1.0f));
 }
 
 void Audio::GenerateSineWave(std::vector<float>& buffer, float frequency, float duration, float amplitude) {
