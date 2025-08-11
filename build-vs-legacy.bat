@@ -24,29 +24,42 @@ echo Creating build directory...
 if not exist build-vs mkdir build-vs
 cd build-vs
 
-echo Copying CMakeLists file for compatibility...
-copy "..\CMakeLists_Windows_NoPkgConfig.txt" "CMakeLists.txt" >nul
+echo Backing up original CMakeLists.txt and replacing with Windows version...
+cd ..
+if exist "CMakeLists.txt" (
+    echo Backing up original CMakeLists.txt...
+    copy "CMakeLists.txt" "CMakeLists.txt.backup" >nul
+)
+copy "CMakeLists_Windows_NoPkgConfig.txt" "CMakeLists.txt" >nul
 if errorlevel 1 (
     echo Error: Failed to copy CMakeLists file.
     pause
     exit /b 1
 )
 
-echo CMakeLists file copied successfully.
+echo CMakeLists file replaced successfully.
 echo.
 
 echo Configuring with CMake...
-cmake -G "Visual Studio 17 2022" -A x64 ..
+cmake -G "Visual Studio 17 2022" -A x64 -B build-vs -S .
 if errorlevel 1 (
     echo CMake configuration failed.
+    echo Restoring original CMakeLists.txt...
+    if exist "CMakeLists.txt.backup" (
+        copy "CMakeLists.txt.backup" "CMakeLists.txt" >nul
+    )
     pause
     exit /b 1
 )
 
 echo Building project...
-cmake --build . --config Release
+cmake --build build-vs --config Release
 if errorlevel 1 (
     echo Build failed.
+    echo Restoring original CMakeLists.txt...
+    if exist "CMakeLists.txt.backup" (
+        copy "CMakeLists.txt.backup" "CMakeLists.txt" >nul
+    )
     pause
     exit /b 1
 )
@@ -54,5 +67,10 @@ if errorlevel 1 (
 echo Build successful!
 echo Executable: build-vs\bin\Release\AsteroidsGame.exe
 
-cd ..
+echo Restoring original CMakeLists.txt...
+if exist "CMakeLists.txt.backup" (
+    copy "CMakeLists.txt.backup" "CMakeLists.txt" >nul
+    del "CMakeLists.txt.backup"
+)
+
 pause
