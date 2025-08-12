@@ -43,11 +43,16 @@ A modern C++ implementation of the classic Asteroids arcade game with psychedeli
 - **ParticleSystem**: Visual effects
 
 ### Dependencies
-- **bgfx**: Cross-platform graphics API
+- **bgfx**: Cross-platform graphics API (with fallback stub implementation)
 - **miniaudio**: Audio library
 - **GLFW**: Window management and input
 - **GLM**: Mathematics library
 - **OpenGL**: Graphics driver
+
+### Graphics Implementation
+- **Windows**: Automatically detects and uses real bgfx library when available via vcpkg
+- **Linux/macOS**: Uses optimized stub implementation for development and testing
+- **Fallback**: Always falls back to stub if real library unavailable
 
 ## Building
 
@@ -98,6 +103,26 @@ sudo pacman -S base-devel cmake glfw-x11 mesa glu
 sudo dnf install gcc-c++ cmake glfw-devel mesa-libGL-devel mesa-libGLU-devel
 
 # Install dependencies (Windows)
+
+#### Using Real bgfx Library (Recommended for Graphics)
+```cmd
+# Install bgfx via vcpkg for actual graphics rendering
+install-bgfx-windows.bat
+
+# Or manually:
+# 1. Install vcpkg: git clone https://github.com/Microsoft/vcpkg.git
+# 2. Run: cd vcpkg && .\bootstrap-vcpkg.bat
+# 3. Install bgfx: vcpkg install bgfx:x64-windows
+# 4. Set VCPKG_ROOT environment variable
+```
+
+#### Using Stub Implementation (Fallback)
+```cmd
+# Build with stub implementation (white screen, but functional game logic)
+build-vs-legacy.bat
+```
+
+**Note**: The stub implementation provides a white screen but fully functional game logic. For actual graphics, install the real bgfx library.
 # Option A: Visual Studio (Recommended)
 # 1. Install Visual Studio 2022 Community (free) with C++ workload
 # 2. Install CMake from https://cmake.org/download/
