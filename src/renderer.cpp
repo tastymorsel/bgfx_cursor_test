@@ -1,8 +1,10 @@
 #include "renderer.hpp"
 #include "shader_utils.hpp"
-#include "bgfx_compat.h"
+// No need for bgfx_compat.h when using real bgfx library
 #include <iostream>
 #include <bgfx/bgfx.h>
+#include <bgfx/platform.h>
+#include <GLFW/glfw3native.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -14,17 +16,16 @@ Renderer::Renderer()
     , viewId_(0) {
     
     // Initialize bgfx handles to invalid
-    // Use direct member assignment that works with both real bgfx and stub
-    backgroundProgram_.idx = bgfx_compat::INVALID_HANDLE;
-    spriteProgram_.idx = bgfx_compat::INVALID_HANDLE;
-    textProgram_.idx = bgfx_compat::INVALID_HANDLE;
-    backgroundVB_.idx = bgfx_compat::INVALID_HANDLE;
-    backgroundIB_.idx = bgfx_compat::INVALID_HANDLE;
-    spriteVB_.idx = bgfx_compat::INVALID_HANDLE;
-    spriteIB_.idx = bgfx_compat::INVALID_HANDLE;
-    timeUniform_.idx = bgfx_compat::INVALID_HANDLE;
-    colorUniform_.idx = bgfx_compat::INVALID_HANDLE;
-    transformUniform_.idx = bgfx_compat::INVALID_HANDLE;
+    backgroundProgram_.idx = bgfx::kInvalidHandle;
+    spriteProgram_.idx = bgfx::kInvalidHandle;
+    textProgram_.idx = bgfx::kInvalidHandle;
+    backgroundVB_.idx = bgfx::kInvalidHandle;
+    backgroundIB_.idx = bgfx::kInvalidHandle;
+    spriteVB_.idx = bgfx::kInvalidHandle;
+    spriteIB_.idx = bgfx::kInvalidHandle;
+    timeUniform_.idx = bgfx::kInvalidHandle;
+    colorUniform_.idx = bgfx::kInvalidHandle;
+    transformUniform_.idx = bgfx::kInvalidHandle;
 }
 
 Renderer::~Renderer() {
@@ -36,26 +37,42 @@ bool Renderer::Initialize(GLFWwindow* window, int width, int height) {
     width_ = width;
     height_ = height;
     
+    // Set up platform data for bgfx
+    bgfx::PlatformData pd;
+    pd.nwh = glfwGetWin32Window(window_);
+    pd.ndt = nullptr;
+    pd.context = nullptr;
+    pd.backBuffer = nullptr;
+    pd.backBufferDS = nullptr;
+    
     // Initialize bgfx
     bgfx::Init init;
-    init.type = bgfx::RendererType::OpenGL; // OpenGL = 0
+    init.type = bgfx::RendererType::Direct3D11;
     init.resolution.width = width_;
     init.resolution.height = height_;
-    init.resolution.reset = bgfx_compat::RESET_VSYNC;
+    init.resolution.reset = bgfx::ResetFlags::Vsync;
+    init.platformData = pd;
+    
+    std::cout << "Attempting to initialize bgfx with:" << std::endl;
+    std::cout << "  Renderer type: " << (int)init.type << std::endl;
+    std::cout << "  Resolution: " << init.resolution.width << "x" << init.resolution.height << std::endl;
+    std::cout << "  Reset flags: " << (int)init.resolution.reset << std::endl;
     
     if (!bgfx::init(init)) {
         std::cerr << "Failed to initialize bgfx" << std::endl;
         return false;
     }
     
+    std::cout << "bgfx initialized successfully!" << std::endl;
+    
     // Set view 0 clear state
-    bgfx::setViewClear(viewId_, bgfx_compat::CLEAR_COLOR | bgfx_compat::CLEAR_DEPTH, 0x000000FF, 1.0f, 0);
+    bgfx::setViewClear(viewId_, bgfx::ClearFlags::Color | bgfx::ClearFlags::Depth, 0x000000FF, 1.0f, 0);
     bgfx::setViewRect(viewId_, 0, 0, width_, height_);
     
     // Create uniforms
-    timeUniform_ = bgfx::createUniform("u_time", bgfx::UniformType::Vec4); // Vec4 = 0
-    colorUniform_ = bgfx::createUniform("u_color", bgfx::UniformType::Vec4); // Vec4 = 0
-    transformUniform_ = bgfx::createUniform("u_transform", bgfx::UniformType::Mat4); // Mat4 = 1
+    timeUniform_ = bgfx::createUniform("u_time", bgfx::UniformType::Vec4);
+    colorUniform_ = bgfx::createUniform("u_color", bgfx::UniformType::Vec4);
+    transformUniform_ = bgfx::createUniform("u_transform", bgfx::UniformType::Mat4);
     
     // Create vertex buffers
     if (!CreateBackgroundBuffers()) {
@@ -94,7 +111,7 @@ void Renderer::Shutdown() {
 }
 
 void Renderer::BeginFrame() {
-    bgfx::setViewClear(viewId_, bgfx_compat::CLEAR_COLOR | bgfx_compat::CLEAR_DEPTH, 0x000000FF, 1.0f, 0);
+    bgfx::setViewClear(viewId_, bgfx::ClearFlags::Color | bgfx::ClearFlags::Depth, 0x000000FF, 1.0f, 0);
     bgfx::setViewRect(viewId_, 0, 0, width_, height_);
 }
 
@@ -113,7 +130,7 @@ void Renderer::RenderBackground(float time) {
     std::cout << "Rendering background with valid program" << std::endl;
     
     // Set shader program
-    bgfx::setState(bgfx_compat::STATE_WRITE_RGB | bgfx_compat::STATE_WRITE_A | bgfx_compat::STATE_DEPTH_TEST_ALWAYS);
+    bgfx::setState(bgfx::StateFlags::WriteRgb | bgfx::StateFlags::WriteA | bgfx::StateFlags::DepthTestAlways);
     
     // Set time uniform
     float timeData[4] = { time, 0.0f, 0.0f, 0.0f };
@@ -133,7 +150,7 @@ void Renderer::RenderSprite(const glm::vec2& position, float rotation, float sca
     if (!bgfx::isValid(spriteProgram_)) return;
     
     // Set shader program
-    bgfx::setState(bgfx_compat::STATE_WRITE_RGB | bgfx_compat::STATE_WRITE_A | bgfx_compat::STATE_DEPTH_TEST_ALWAYS | bgfx_compat::STATE_BLEND_ALPHA);
+    bgfx::setState(bgfx::StateFlags::WriteRgb | bgfx::StateFlags::WriteA | bgfx::StateFlags::DepthTestAlways | bgfx::StateFlags::BlendAlpha);
     
     // Create transform matrix
     glm::mat4 transform = glm::mat4(1.0f);
