@@ -37,10 +37,10 @@ bool Renderer::Initialize(GLFWwindow* window, int width, int height) {
     
     // Initialize bgfx
     bgfx::Init init;
-    init.type = bgfx::RendererType::OpenGL;
+    init.type = (bgfx::RendererType)0; // OpenGL equivalent
     init.resolution.width = width_;
     init.resolution.height = height_;
-    init.resolution.reset = bgfx::ResetFlags::Vsync;
+    init.resolution.reset = 0x00000001; // BGFX_RESET_VSYNC equivalent
     
     if (!bgfx::init(init)) {
         std::cerr << "Failed to initialize bgfx" << std::endl;
@@ -48,13 +48,13 @@ bool Renderer::Initialize(GLFWwindow* window, int width, int height) {
     }
     
     // Set view 0 clear state
-    bgfx::setViewClear(viewId_, bgfx::ClearFlags::Color | bgfx::ClearFlags::Depth, 0x000000FF, 1.0f, 0);
+    bgfx::setViewClear(viewId_, 0x00000001 | 0x00000002, 0x000000FF, 1.0f, 0); // BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH
     bgfx::setViewRect(viewId_, 0, 0, width_, height_);
     
     // Create uniforms
-    timeUniform_ = bgfx::createUniform("u_time", bgfx::UniformType::Vec4);
-    colorUniform_ = bgfx::createUniform("u_color", bgfx::UniformType::Vec4);
-    transformUniform_ = bgfx::createUniform("u_transform", bgfx::UniformType::Mat4);
+    timeUniform_ = bgfx::createUniform("u_time", (bgfx::UniformType)0); // Vec4 equivalent
+    colorUniform_ = bgfx::createUniform("u_color", (bgfx::UniformType)0); // Vec4 equivalent
+    transformUniform_ = bgfx::createUniform("u_transform", (bgfx::UniformType)1); // Mat4 equivalent
     
     // Create vertex buffers
     if (!CreateBackgroundBuffers()) {
@@ -93,7 +93,7 @@ void Renderer::Shutdown() {
 }
 
 void Renderer::BeginFrame() {
-    bgfx::setViewClear(viewId_, bgfx::ClearFlags::Color | bgfx::ClearFlags::Depth, 0x000000FF, 1.0f, 0);
+    bgfx::setViewClear(viewId_, 0x00000001 | 0x00000002, 0x000000FF, 1.0f, 0); // BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH
     bgfx::setViewRect(viewId_, 0, 0, width_, height_);
 }
 
@@ -112,7 +112,7 @@ void Renderer::RenderBackground(float time) {
     std::cout << "Rendering background with valid program" << std::endl;
     
     // Set shader program
-    bgfx::setState(bgfx::StateFlags::WriteRgb | bgfx::StateFlags::WriteA | bgfx::StateFlags::DepthTestAlways);
+    bgfx::setState(0x00000001 | 0x00000002 | 0x00000004); // BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_DEPTH_TEST_ALWAYS
     bgfx::setProgram(backgroundProgram_);
     
     // Set time uniform
@@ -133,7 +133,7 @@ void Renderer::RenderSprite(const glm::vec2& position, float rotation, float sca
     if (!bgfx::isValid(spriteProgram_)) return;
     
     // Set shader program
-    bgfx::setState(bgfx::StateFlags::WriteRgb | bgfx::StateFlags::WriteA | bgfx::StateFlags::DepthTestAlways | bgfx::StateFlags::BlendAlpha);
+    bgfx::setState(0x00000001 | 0x00000002 | 0x00000004 | 0x00000008); // BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_DEPTH_TEST_ALWAYS | BGFX_STATE_BLEND_ALPHA
     bgfx::setProgram(spriteProgram_);
     
     // Create transform matrix
@@ -223,8 +223,8 @@ bool Renderer::CreateBackgroundBuffers() {
     
     // Setup vertex layout first
     backgroundLayout_.begin()
-        .add(bgfx::Attrib::Position, 2, bgfx::AttribType::Float)
-        .add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float)
+        .add((bgfx::Attrib)0, 2, (bgfx::AttribType)0) // Position, Float
+        .add((bgfx::Attrib)1, 2, (bgfx::AttribType)0) // TexCoord0, Float
         .end();
     
     std::cout << "Creating background vertex buffer..." << std::endl;
@@ -269,8 +269,8 @@ bool Renderer::CreateSpriteBuffers() {
     
     // Setup vertex layout first
     spriteLayout_.begin()
-        .add(bgfx::Attrib::Position, 2, bgfx::AttribType::Float)
-        .add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float)
+        .add((bgfx::Attrib)0, 2, (bgfx::AttribType)0) // Position, Float
+        .add((bgfx::Attrib)1, 2, (bgfx::AttribType)0) // TexCoord0, Float
         .end();
     
     // Create vertex buffer
