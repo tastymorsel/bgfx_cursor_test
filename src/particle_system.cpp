@@ -3,6 +3,11 @@
 #include <algorithm>
 #include <cmath>
 
+// Define M_PI if not available (Windows compatibility)
+#ifndef M_PI
+#define M_PI 3.14159265359
+#endif
+
 ParticleSystem::ParticleSystem() {
     particles_.reserve(MAX_PARTICLES);
 }

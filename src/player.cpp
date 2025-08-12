@@ -2,6 +2,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <cmath>
 
+// Define M_PI if not available (Windows compatibility)
+#ifndef M_PI
+#define M_PI 3.14159265359
+#endif
+
 Player::Player()
     : Entity(glm::vec2(0.0f), glm::vec2(0.0f), 0.0f, 1.0f)
     , lives_(STARTING_LIVES)

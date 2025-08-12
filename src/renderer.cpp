@@ -38,7 +38,7 @@ bool Renderer::Initialize(GLFWwindow* window, int width, int height) {
     
     // Initialize bgfx
     bgfx::Init init;
-    init.type = (bgfx::RendererType)0; // OpenGL = 0
+    init.type = bgfx::RendererType::OpenGL; // OpenGL = 0
     init.resolution.width = width_;
     init.resolution.height = height_;
     init.resolution.reset = bgfx_compat::RESET_VSYNC;
@@ -53,9 +53,9 @@ bool Renderer::Initialize(GLFWwindow* window, int width, int height) {
     bgfx::setViewRect(viewId_, 0, 0, width_, height_);
     
     // Create uniforms
-    timeUniform_ = bgfx::createUniform("u_time", (bgfx::UniformType)0); // Vec4 = 0
-    colorUniform_ = bgfx::createUniform("u_color", (bgfx::UniformType)0); // Vec4 = 0
-    transformUniform_ = bgfx::createUniform("u_transform", (bgfx::UniformType)1); // Mat4 = 1
+    timeUniform_ = bgfx::createUniform("u_time", bgfx::UniformType::Vec4); // Vec4 = 0
+    colorUniform_ = bgfx::createUniform("u_color", bgfx::UniformType::Vec4); // Vec4 = 0
+    transformUniform_ = bgfx::createUniform("u_transform", bgfx::UniformType::Mat4); // Mat4 = 1
     
     // Create vertex buffers
     if (!CreateBackgroundBuffers()) {
@@ -114,7 +114,6 @@ void Renderer::RenderBackground(float time) {
     
     // Set shader program
     bgfx::setState(bgfx_compat::STATE_WRITE_RGB | bgfx_compat::STATE_WRITE_A | bgfx_compat::STATE_DEPTH_TEST_ALWAYS);
-    bgfx::setProgram(backgroundProgram_);
     
     // Set time uniform
     float timeData[4] = { time, 0.0f, 0.0f, 0.0f };
@@ -125,7 +124,7 @@ void Renderer::RenderBackground(float time) {
     bgfx::setIndexBuffer(backgroundIB_);
     
     // Submit
-    bgfx::submit(viewId_);
+    bgfx::submit(viewId_, backgroundProgram_);
     
     std::cout << "Background render submitted" << std::endl;
 }
@@ -135,7 +134,6 @@ void Renderer::RenderSprite(const glm::vec2& position, float rotation, float sca
     
     // Set shader program
     bgfx::setState(bgfx_compat::STATE_WRITE_RGB | bgfx_compat::STATE_WRITE_A | bgfx_compat::STATE_DEPTH_TEST_ALWAYS | bgfx_compat::STATE_BLEND_ALPHA);
-    bgfx::setProgram(spriteProgram_);
     
     // Create transform matrix
     glm::mat4 transform = glm::mat4(1.0f);
@@ -159,7 +157,7 @@ void Renderer::RenderSprite(const glm::vec2& position, float rotation, float sca
     bgfx::setIndexBuffer(spriteIB_);
     
     // Submit
-    bgfx::submit(viewId_);
+    bgfx::submit(viewId_, spriteProgram_);
 }
 
 void Renderer::RenderText(const std::string& text, const glm::vec2& position, float scale, uint32_t color) {
@@ -224,8 +222,8 @@ bool Renderer::CreateBackgroundBuffers() {
     
     // Setup vertex layout first
     backgroundLayout_.begin()
-        .add((bgfx::Attrib)0, 2, (bgfx::AttribType)0) // Position = 0, Float = 0
-        .add((bgfx::Attrib)1, 2, (bgfx::AttribType)0) // TexCoord0 = 1, Float = 0
+        .add(bgfx::Attrib::Position, 2, bgfx::AttribType::Float) // Position = 0, Float = 0
+        .add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float) // TexCoord0 = 1, Float = 0
         .end();
     
     std::cout << "Creating background vertex buffer..." << std::endl;
@@ -270,8 +268,8 @@ bool Renderer::CreateSpriteBuffers() {
     
     // Setup vertex layout first
     spriteLayout_.begin()
-        .add((bgfx::Attrib)0, 2, (bgfx::AttribType)0) // Position = 0, Float = 0
-        .add((bgfx::Attrib)1, 2, (bgfx::AttribType)0) // TexCoord0 = 1, Float = 0
+        .add(bgfx::Attrib::Position, 2, bgfx::AttribType::Float) // Position = 0, Float = 0
+        .add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float) // TexCoord0 = 1, Float = 0
         .end();
     
     // Create vertex buffer
