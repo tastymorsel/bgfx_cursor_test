@@ -136,8 +136,9 @@ endforeach()
 find_path(BGFX_INCLUDE_DIR NAMES bgfx/bgfx.h PATHS ${BGFX_DIRS} PATH_SUFFIXES include)
 find_library(BGFX_LIBRARY NAMES bgfx bgfxdll PATHS ${BGFX_DIRS} PATH_SUFFIXES lib)
 
-# Also find the bx library (dependency of bgfx)
+# Also find the bx and bimg libraries (dependencies of bgfx)
 find_library(BX_LIBRARY NAMES bx PATHS ${BGFX_DIRS} PATH_SUFFIXES lib)
+find_library(BIMG_LIBRARY NAMES bimg PATHS ${BGFX_DIRS} PATH_SUFFIXES lib)
 
 # Check if we found the real bgfx library
 if(BGFX_INCLUDE_DIR AND BGFX_LIBRARY)
@@ -147,6 +148,12 @@ if(BGFX_INCLUDE_DIR AND BGFX_LIBRARY)
         message(STATUS "Found bx library: ${BX_LIBRARY}")
     else()
         message(STATUS "Warning: bx library not found, bgfx might not link properly")
+    endif()
+    
+    if(BIMG_LIBRARY)
+        message(STATUS "Found bimg library: ${BIMG_LIBRARY}")
+    else()
+        message(STATUS "Warning: bimg library not found, bgfx might not link properly")
     endif()
     set(USE_REAL_BGFX TRUE)
 else()
@@ -217,6 +224,12 @@ if(WIN32)
         if(BX_LIBRARY)
             target_link_libraries(${PROJECT_NAME} ${BX_LIBRARY})
             message(STATUS "Linked with bx library: ${BX_LIBRARY}")
+        endif()
+        
+        # Also link with bimg library if found
+        if(BIMG_LIBRARY)
+            target_link_libraries(${PROJECT_NAME} ${BIMG_LIBRARY})
+            message(STATUS "Linked with bimg library: ${BIMG_LIBRARY}")
         endif()
     endif()
     

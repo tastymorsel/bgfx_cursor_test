@@ -20,7 +20,7 @@ cd vcpkg
 .\bootstrap-vcpkg.bat
 ```
 
-### 2. Install bgfx and bx
+### 2. Install bgfx, bx, and bimg
 
 Run the provided script:
 ```bash
@@ -29,10 +29,12 @@ install-bgfx-windows.bat
 
 Or manually:
 ```bash
-vcpkg install bgfx:x64-windows bx:x64-windows
+vcpkg install bgfx:x64-windows bx:x64-windows bimg:x64-windows
 ```
 
-**Note**: The `bx` library is a required dependency of bgfx that provides low-level utilities.
+**Note**: 
+- The `bx` library is a required dependency of bgfx that provides low-level utilities
+- The `bimg` library is required for image/texture operations
 
 ### 3. Set Environment Variable
 
@@ -91,6 +93,10 @@ Linked with real bgfx library: C:/vcpkg/installed/x64-windows/lib/bgfx.lib
 4. **Missing bx library**: If you see `unresolved external symbol "bx::debugBreak"`, make sure to install the bx library:
    ```bash
    vcpkg install bx:x64-windows
+   ```
+5. **Missing bimg library**: If you see `unresolved external symbol "bimg::isCompressed"`, make sure to install the bimg library:
+   ```bash
+   vcpkg install bimg:x64-windows
    ```
 
 ### Runtime Errors

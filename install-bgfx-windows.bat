@@ -63,8 +63,8 @@ if %VCPKG_FOUND%==0 (
 
 :install
 echo.
-echo Installing bgfx and bx for x64-windows...
-"%VCPKG_ROOT%\vcpkg.exe" install bgfx:x64-windows bx:x64-windows
+echo Installing bgfx, bx, and bimg for x64-windows...
+"%VCPKG_ROOT%\vcpkg.exe" install bgfx:x64-windows bx:x64-windows bimg:x64-windows
 
 if errorlevel 1 (
     echo.
