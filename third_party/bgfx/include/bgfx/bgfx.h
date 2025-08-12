@@ -96,7 +96,7 @@ namespace bgfx {
     
     // Handle validation
     template<typename T>
-    bool isValid(T handle) { return handle.idx != kInvalidHandle; }
+    bool isValid(T handle) { return handle.idx != 0xFFFF; }
     
     // Shader creation
     ShaderHandle createShader(const Memory* mem);

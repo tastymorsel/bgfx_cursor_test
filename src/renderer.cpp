@@ -1,5 +1,6 @@
 #include "renderer.hpp"
 #include "shader_utils.hpp"
+#include "bgfx_compat.h"
 #include <iostream>
 #include <bgfx/bgfx.h>
 #include <glm/glm.hpp>
@@ -14,16 +15,16 @@ Renderer::Renderer()
     
     // Initialize bgfx handles to invalid
     // Use direct member assignment that works with both real bgfx and stub
-    backgroundProgram_.idx = bgfx::kInvalidHandle;
-    spriteProgram_.idx = bgfx::kInvalidHandle;
-    textProgram_.idx = bgfx::kInvalidHandle;
-    backgroundVB_.idx = bgfx::kInvalidHandle;
-    backgroundIB_.idx = bgfx::kInvalidHandle;
-    spriteVB_.idx = bgfx::kInvalidHandle;
-    spriteIB_.idx = bgfx::kInvalidHandle;
-    timeUniform_.idx = bgfx::kInvalidHandle;
-    colorUniform_.idx = bgfx::kInvalidHandle;
-    transformUniform_.idx = bgfx::kInvalidHandle;
+    backgroundProgram_.idx = bgfx_compat::INVALID_HANDLE;
+    spriteProgram_.idx = bgfx_compat::INVALID_HANDLE;
+    textProgram_.idx = bgfx_compat::INVALID_HANDLE;
+    backgroundVB_.idx = bgfx_compat::INVALID_HANDLE;
+    backgroundIB_.idx = bgfx_compat::INVALID_HANDLE;
+    spriteVB_.idx = bgfx_compat::INVALID_HANDLE;
+    spriteIB_.idx = bgfx_compat::INVALID_HANDLE;
+    timeUniform_.idx = bgfx_compat::INVALID_HANDLE;
+    colorUniform_.idx = bgfx_compat::INVALID_HANDLE;
+    transformUniform_.idx = bgfx_compat::INVALID_HANDLE;
 }
 
 Renderer::~Renderer() {
@@ -37,10 +38,10 @@ bool Renderer::Initialize(GLFWwindow* window, int width, int height) {
     
     // Initialize bgfx
     bgfx::Init init;
-    init.type = (bgfx::RendererType)0; // OpenGL equivalent
+    init.type = (bgfx::RendererType)bgfx_compat::RENDERER_TYPE_OPENGL;
     init.resolution.width = width_;
     init.resolution.height = height_;
-    init.resolution.reset = 0x00000001; // BGFX_RESET_VSYNC equivalent
+    init.resolution.reset = bgfx_compat::RESET_VSYNC;
     
     if (!bgfx::init(init)) {
         std::cerr << "Failed to initialize bgfx" << std::endl;
@@ -48,13 +49,13 @@ bool Renderer::Initialize(GLFWwindow* window, int width, int height) {
     }
     
     // Set view 0 clear state
-    bgfx::setViewClear(viewId_, 0x00000001 | 0x00000002, 0x000000FF, 1.0f, 0); // BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH
+    bgfx::setViewClear(viewId_, bgfx_compat::CLEAR_COLOR | bgfx_compat::CLEAR_DEPTH, 0x000000FF, 1.0f, 0);
     bgfx::setViewRect(viewId_, 0, 0, width_, height_);
     
     // Create uniforms
-    timeUniform_ = bgfx::createUniform("u_time", (bgfx::UniformType)0); // Vec4 equivalent
-    colorUniform_ = bgfx::createUniform("u_color", (bgfx::UniformType)0); // Vec4 equivalent
-    transformUniform_ = bgfx::createUniform("u_transform", (bgfx::UniformType)1); // Mat4 equivalent
+    timeUniform_ = bgfx::createUniform("u_time", (bgfx::UniformType)bgfx_compat::UNIFORM_TYPE_VEC4);
+    colorUniform_ = bgfx::createUniform("u_color", (bgfx::UniformType)bgfx_compat::UNIFORM_TYPE_VEC4);
+    transformUniform_ = bgfx::createUniform("u_transform", (bgfx::UniformType)bgfx_compat::UNIFORM_TYPE_MAT4);
     
     // Create vertex buffers
     if (!CreateBackgroundBuffers()) {
@@ -93,7 +94,7 @@ void Renderer::Shutdown() {
 }
 
 void Renderer::BeginFrame() {
-    bgfx::setViewClear(viewId_, 0x00000001 | 0x00000002, 0x000000FF, 1.0f, 0); // BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH
+    bgfx::setViewClear(viewId_, bgfx_compat::CLEAR_COLOR | bgfx_compat::CLEAR_DEPTH, 0x000000FF, 1.0f, 0);
     bgfx::setViewRect(viewId_, 0, 0, width_, height_);
 }
 
@@ -112,7 +113,7 @@ void Renderer::RenderBackground(float time) {
     std::cout << "Rendering background with valid program" << std::endl;
     
     // Set shader program
-    bgfx::setState(0x00000001 | 0x00000002 | 0x00000004); // BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_DEPTH_TEST_ALWAYS
+    bgfx::setState(bgfx_compat::STATE_WRITE_RGB | bgfx_compat::STATE_WRITE_A | bgfx_compat::STATE_DEPTH_TEST_ALWAYS);
     bgfx::setProgram(backgroundProgram_);
     
     // Set time uniform
@@ -133,7 +134,7 @@ void Renderer::RenderSprite(const glm::vec2& position, float rotation, float sca
     if (!bgfx::isValid(spriteProgram_)) return;
     
     // Set shader program
-    bgfx::setState(0x00000001 | 0x00000002 | 0x00000004 | 0x00000008); // BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_DEPTH_TEST_ALWAYS | BGFX_STATE_BLEND_ALPHA
+    bgfx::setState(bgfx_compat::STATE_WRITE_RGB | bgfx_compat::STATE_WRITE_A | bgfx_compat::STATE_DEPTH_TEST_ALWAYS | bgfx_compat::STATE_BLEND_ALPHA);
     bgfx::setProgram(spriteProgram_);
     
     // Create transform matrix
@@ -223,8 +224,8 @@ bool Renderer::CreateBackgroundBuffers() {
     
     // Setup vertex layout first
     backgroundLayout_.begin()
-        .add((bgfx::Attrib)0, 2, (bgfx::AttribType)0) // Position, Float
-        .add((bgfx::Attrib)1, 2, (bgfx::AttribType)0) // TexCoord0, Float
+        .add((bgfx::Attrib)bgfx_compat::ATTRIB_POSITION, 2, (bgfx::AttribType)bgfx_compat::ATTRIB_TYPE_FLOAT) // Position, Float
+        .add((bgfx::Attrib)bgfx_compat::ATTRIB_TEXCOORD0, 2, (bgfx::AttribType)bgfx_compat::ATTRIB_TYPE_FLOAT) // TexCoord0, Float
         .end();
     
     std::cout << "Creating background vertex buffer..." << std::endl;
@@ -269,8 +270,8 @@ bool Renderer::CreateSpriteBuffers() {
     
     // Setup vertex layout first
     spriteLayout_.begin()
-        .add((bgfx::Attrib)0, 2, (bgfx::AttribType)0) // Position, Float
-        .add((bgfx::Attrib)1, 2, (bgfx::AttribType)0) // TexCoord0, Float
+        .add((bgfx::Attrib)bgfx_compat::ATTRIB_POSITION, 2, (bgfx::AttribType)bgfx_compat::ATTRIB_TYPE_FLOAT) // Position, Float
+        .add((bgfx::Attrib)bgfx_compat::ATTRIB_TEXCOORD0, 2, (bgfx::AttribType)bgfx_compat::ATTRIB_TYPE_FLOAT) // TexCoord0, Float
         .end();
     
     // Create vertex buffer

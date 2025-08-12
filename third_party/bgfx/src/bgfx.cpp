@@ -1,4 +1,5 @@
 #include "bgfx/bgfx.h"
+#include "../../src/bgfx_compat.h"
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
@@ -108,31 +109,31 @@ namespace bgfx {
     
     // Handle validation functions
     bool isValid(ShaderHandle handle) {
-        bool valid = handle.idx != kInvalidHandle;
+        bool valid = handle.idx != bgfx_compat::INVALID_HANDLE;
         std::cout << "bgfx::isValid(ShaderHandle) called with handle: " << handle.idx << ", returning: " << (valid ? "true" : "false") << std::endl;
         return valid;
     }
     
     bool isValid(ProgramHandle handle) {
-        bool valid = handle.idx != kInvalidHandle;
+        bool valid = handle.idx != bgfx_compat::INVALID_HANDLE;
         std::cout << "bgfx::isValid(ProgramHandle) called with handle: " << handle.idx << ", returning: " << (valid ? "true" : "false") << std::endl;
         return valid;
     }
     
     bool isValid(VertexBufferHandle handle) {
-        bool valid = handle.idx != kInvalidHandle;
+        bool valid = handle.idx != bgfx_compat::INVALID_HANDLE;
         std::cout << "bgfx::isValid(VertexBufferHandle) called with handle: " << handle.idx << ", returning: " << (valid ? "true" : "false") << std::endl;
         return valid;
     }
     
     bool isValid(IndexBufferHandle handle) {
-        bool valid = handle.idx != kInvalidHandle;
+        bool valid = handle.idx != bgfx_compat::INVALID_HANDLE;
         std::cout << "bgfx::isValid(IndexBufferHandle) called with handle: " << handle.idx << ", returning: " << (valid ? "true" : "false") << std::endl;
         return valid;
     }
     
     bool isValid(UniformHandle handle) {
-        bool valid = handle.idx != kInvalidHandle;
+        bool valid = handle.idx != bgfx_compat::INVALID_HANDLE;
         std::cout << "bgfx::isValid(UniformHandle) called with handle: " << handle.idx << ", returning: " << (valid ? "true" : "false") << std::endl;
         return valid;
     }
