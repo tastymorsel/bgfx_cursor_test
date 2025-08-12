@@ -14,8 +14,8 @@ namespace bgfx {
     // View ID type
     using ViewId = uint8_t;
     
-    // Constants
-    static const uint16_t BGFX_INVALID_HANDLE = 0xFFFF;
+    // Constants - using modern names that are more likely to exist in real bgfx
+    static const uint16_t kInvalidHandle = 0xFFFF;
     
     // Uniform types
     enum UniformType {
@@ -23,23 +23,23 @@ namespace bgfx {
         Mat4
     };
     
-    // States
-    enum State {
-        BGFX_STATE_WRITE_RGB = 0x00000001,
-        BGFX_STATE_WRITE_A = 0x00000002,
-        BGFX_STATE_DEPTH_TEST_ALWAYS = 0x00000004,
-        BGFX_STATE_BLEND_ALPHA = 0x00000008
+    // States - using modern enum names
+    enum StateFlags {
+        WriteRgb = 0x00000001,
+        WriteA = 0x00000002,
+        DepthTestAlways = 0x00000004,
+        BlendAlpha = 0x00000008
     };
     
-    // Clear flags
-    enum Clear {
-        BGFX_CLEAR_COLOR = 0x00000001,
-        BGFX_CLEAR_DEPTH = 0x00000002
+    // Clear flags - using modern enum names
+    enum ClearFlags {
+        Color = 0x00000001,
+        Depth = 0x00000002
     };
     
-    // Reset flags
-    enum Reset {
-        BGFX_RESET_VSYNC = 0x00000001
+    // Reset flags - using modern enum names
+    enum ResetFlags {
+        Vsync = 0x00000001
     };
     
     // Renderer types
@@ -108,14 +108,9 @@ namespace bgfx {
     // Buffer creation
     VertexBufferHandle createVertexBuffer(const Memory* mem, const VertexLayout& layout);
     IndexBufferHandle createIndexBuffer(const Memory* mem);
-    UniformHandle createUniform(const char* name, UniformType type);
     
-    // Handle validation functions
-    bool isValid(ShaderHandle handle);
-    bool isValid(ProgramHandle handle);
-    bool isValid(VertexBufferHandle handle);
-    bool isValid(IndexBufferHandle handle);
-    bool isValid(UniformHandle handle);
+    // Uniform creation
+    UniformHandle createUniform(const char* name, UniformType type);
     
     // Cleanup functions
     void destroy(ShaderHandle handle);
@@ -124,16 +119,16 @@ namespace bgfx {
     void destroy(IndexBufferHandle handle);
     void destroy(UniformHandle handle);
     
-    // Copy functions
+    // Shader loading helpers
+    Memory* alloc(uint32_t size);
+    void release(const Memory* mem);
+    
+    // Copy function
     template<typename T>
     const Memory* copy(const T* data, uint32_t size) {
         // Placeholder implementation
         return nullptr;
     }
-    
-    // Shader loading helpers
-    Memory* alloc(uint32_t size);
-    void release(const Memory* mem);
 }
 
 // Global bgfx instance (simplified for our needs)
