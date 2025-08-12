@@ -157,8 +157,10 @@ if(WIN32)
     # Use real bgfx if available, otherwise use stub
     if(USE_REAL_BGFX)
         include_directories(${BGFX_INCLUDE_DIR})
+        message(STATUS "Using real bgfx - will include real bgfx headers")
     else()
         include_directories(${CMAKE_SOURCE_DIR}/third_party/bgfx/include)
+        message(STATUS "Using bgfx stub - will include stub headers")
     endif()
 else()
     # On non-Windows, always use stub

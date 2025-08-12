@@ -13,16 +13,17 @@ Renderer::Renderer()
     , viewId_(0) {
     
     // Initialize bgfx handles to invalid
-    backgroundProgram_ = {bgfx::BGFX_INVALID_HANDLE};
-    spriteProgram_ = {bgfx::BGFX_INVALID_HANDLE};
-    textProgram_ = {bgfx::BGFX_INVALID_HANDLE};
-    backgroundVB_ = {bgfx::BGFX_INVALID_HANDLE};
-    backgroundIB_ = {bgfx::BGFX_INVALID_HANDLE};
-    spriteVB_ = {bgfx::BGFX_INVALID_HANDLE};
-    spriteIB_ = {bgfx::BGFX_INVALID_HANDLE};
-    timeUniform_ = {bgfx::BGFX_INVALID_HANDLE};
-    colorUniform_ = {bgfx::BGFX_INVALID_HANDLE};
-    transformUniform_ = {bgfx::BGFX_INVALID_HANDLE};
+    // Use proper initialization that works with both real bgfx and stub
+    backgroundProgram_ = bgfx::ProgramHandle{bgfx::BGFX_INVALID_HANDLE};
+    spriteProgram_ = bgfx::ProgramHandle{bgfx::BGFX_INVALID_HANDLE};
+    textProgram_ = bgfx::BGFX_INVALID_HANDLE};
+    backgroundVB_ = bgfx::VertexBufferHandle{bgfx::BGFX_INVALID_HANDLE};
+    backgroundIB_ = bgfx::IndexBufferHandle{bgfx::BGFX_INVALID_HANDLE};
+    spriteVB_ = bgfx::VertexBufferHandle{bgfx::BGFX_INVALID_HANDLE};
+    spriteIB_ = bgfx::IndexBufferHandle{bgfx::BGFX_INVALID_HANDLE};
+    timeUniform_ = bgfx::UniformHandle{bgfx::BGFX_INVALID_HANDLE};
+    colorUniform_ = bgfx::UniformHandle{bgfx::BGFX_INVALID_HANDLE};
+    transformUniform_ = bgfx::BGFX_INVALID_HANDLE};
 }
 
 Renderer::~Renderer() {
