@@ -101,7 +101,14 @@ void Renderer::EndFrame() {
 }
 
 void Renderer::RenderBackground(float time) {
-    if (!bgfx::isValid(backgroundProgram_)) return;
+    std::cout << "RenderBackground called with time: " << time << std::endl;
+    
+    if (!bgfx::isValid(backgroundProgram_)) {
+        std::cerr << "Background program is invalid!" << std::endl;
+        return;
+    }
+    
+    std::cout << "Rendering background with valid program" << std::endl;
     
     // Set shader program
     bgfx::setState(bgfx::BGFX_STATE_WRITE_RGB | bgfx::BGFX_STATE_WRITE_A | bgfx::BGFX_STATE_DEPTH_TEST_ALWAYS);
@@ -117,6 +124,8 @@ void Renderer::RenderBackground(float time) {
     
     // Submit
     bgfx::submit(viewId_);
+    
+    std::cout << "Background render submitted" << std::endl;
 }
 
 void Renderer::RenderSprite(const glm::vec2& position, float rotation, float scale, uint32_t color) {
@@ -163,25 +172,36 @@ void Renderer::RenderUI() {
 }
 
 bool Renderer::LoadShaders() {
+    std::cout << "LoadShaders called" << std::endl;
+    
     // Load background shaders
+    std::cout << "Loading background shaders..." << std::endl;
     backgroundProgram_ = ShaderUtils::CreateProgram("background.vert", "background.frag");
     if (!bgfx::isValid(backgroundProgram_)) {
+        std::cerr << "Failed to create background program" << std::endl;
         return false;
     }
+    std::cout << "Background program created successfully" << std::endl;
     
     // Load sprite shaders
+    std::cout << "Loading sprite shaders..." << std::endl;
     spriteProgram_ = ShaderUtils::CreateProgram("sprite.vert", "sprite.frag");
     if (!bgfx::isValid(spriteProgram_)) {
+        std::cerr << "Failed to create sprite program" << std::endl;
         return false;
     }
+    std::cout << "Sprite program created successfully" << std::endl;
     
     // For now, use sprite program for text
     textProgram_ = spriteProgram_;
     
+    std::cout << "All shaders loaded successfully" << std::endl;
     return true;
 }
 
 bool Renderer::CreateBackgroundBuffers() {
+    std::cout << "CreateBackgroundBuffers called" << std::endl;
+    
     // Create full-screen quad for background
     struct Vertex {
         float x, y;
@@ -206,18 +226,25 @@ bool Renderer::CreateBackgroundBuffers() {
         .add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float)
         .end();
     
+    std::cout << "Creating background vertex buffer..." << std::endl;
+    
     // Create vertex buffer
     backgroundVB_ = bgfx::createVertexBuffer(
         bgfx::copy(vertices, sizeof(vertices)),
         backgroundLayout_
     );
     
+    std::cout << "Creating background index buffer..." << std::endl;
+    
     // Create index buffer
     backgroundIB_ = bgfx::createIndexBuffer(
         bgfx::copy(indices, sizeof(indices))
     );
     
-    return bgfx::isValid(backgroundVB_) && bgfx::isValid(backgroundIB_);
+    bool success = bgfx::isValid(backgroundVB_) && bgfx::isValid(backgroundIB_);
+    std::cout << "Background buffers created successfully: " << (success ? "yes" : "no") << std::endl;
+    
+    return success;
 }
 
 bool Renderer::CreateSpriteBuffers() {

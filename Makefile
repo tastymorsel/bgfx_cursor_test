@@ -5,7 +5,16 @@ LIBS = -lglfw -lGL -ldl -lpthread -lm
 
 # Source files
 SRCDIR = src
-SOURCES = $(wildcard $(SRCDIR)/*.cpp)
+SOURCES = $(SRCDIR)/main.cpp \
+          $(SRCDIR)/game.cpp \
+          $(SRCDIR)/renderer.cpp \
+          $(SRCDIR)/shader_utils.cpp \
+          $(SRCDIR)/audio.cpp \
+          $(SRCDIR)/entity.cpp \
+          $(SRCDIR)/player.cpp \
+          $(SRCDIR)/asteroid.cpp \
+          $(SRCDIR)/bullet.cpp \
+          $(SRCDIR)/particle_system.cpp
 SOURCES += third_party/bgfx/src/bgfx.cpp
 SOURCES += third_party/miniaudio/miniaudio.cpp
 OBJECTS = $(SOURCES:.cpp=.o)

@@ -25,8 +25,11 @@ bool LoadShader(const std::string& filename, std::string& source) {
 bgfx::ShaderHandle CreateShader(const std::string& filename) {
     std::string source;
     if (!LoadShader(filename, source)) {
+        std::cerr << "Failed to load shader source: " << filename << std::endl;
         return bgfx::ShaderHandle{bgfx::BGFX_INVALID_HANDLE};
     }
+    
+    std::cout << "Creating shader: " << filename << " (source length: " << source.length() << ")" << std::endl;
     
     bgfx::ShaderHandle handle = bgfx::createShader(
         bgfx::copy(source.c_str(), source.length())
@@ -34,16 +37,21 @@ bgfx::ShaderHandle CreateShader(const std::string& filename) {
     
     if (!bgfx::isValid(handle)) {
         std::cerr << "Failed to create shader: " << filename << std::endl;
+    } else {
+        std::cout << "Successfully created shader: " << filename << std::endl;
     }
     
     return handle;
 }
 
 bgfx::ProgramHandle CreateProgram(const std::string& vertexShader, const std::string& fragmentShader) {
+    std::cout << "Creating program from " << vertexShader << " and " << fragmentShader << std::endl;
+    
     bgfx::ShaderHandle vs = CreateShader(vertexShader);
     bgfx::ShaderHandle fs = CreateShader(fragmentShader);
     
     if (!bgfx::isValid(vs) || !bgfx::isValid(fs)) {
+        std::cerr << "Failed to create program - invalid shaders" << std::endl;
         return bgfx::ProgramHandle{bgfx::BGFX_INVALID_HANDLE};
     }
     
@@ -51,6 +59,8 @@ bgfx::ProgramHandle CreateProgram(const std::string& vertexShader, const std::st
     
     if (!bgfx::isValid(program)) {
         std::cerr << "Failed to create program from " << vertexShader << " and " << fragmentShader << std::endl;
+    } else {
+        std::cout << "Successfully created program from " << vertexShader << " and " << fragmentShader << std::endl;
     }
     
     return program;
