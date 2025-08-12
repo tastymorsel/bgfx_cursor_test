@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <vector> // Added for std::vector
 
 namespace ShaderUtils {
 
@@ -69,6 +70,23 @@ void PrintShaderInfoLog(bgfx::ShaderHandle handle) {
 }
 
 std::string GetShaderPath(const std::string& filename) {
+    // Try multiple possible asset locations
+    std::vector<std::string> searchPaths = {
+        "assets/shaders/" + filename,                    // Current directory
+        "../assets/shaders/" + filename,                 // Parent directory
+        "../../assets/shaders/" + filename,              // Grandparent directory
+        "bin/assets/shaders/" + filename,                // Build output directory
+        "build-vs/bin/Release/assets/shaders/" + filename, // Visual Studio build directory
+        "build-vs/bin/Debug/assets/shaders/" + filename,   // Visual Studio debug directory
+    };
+    
+    for (const auto& path : searchPaths) {
+        if (FileExists(path)) {
+            return path;
+        }
+    }
+    
+    // If none found, return the original path (will show error message)
     return "assets/shaders/" + filename;
 }
 

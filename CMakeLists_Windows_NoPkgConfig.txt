@@ -168,10 +168,19 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
 )
 
+# Copy assets folder to build directory
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/assets
+    $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
+    COMMENT "Copying assets folder to build directory"
+)
+
 # Windows-specific properties
 if(WIN32)
     set_target_properties(${PROJECT_NAME} PROPERTIES
         WIN32_EXECUTABLE TRUE
         VS_DEBUGGER_ENVIRONMENT "PATH=${CMAKE_SOURCE_DIR}/bin;$ENV{PATH}"
+        VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     )
 endif()
