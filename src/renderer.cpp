@@ -38,7 +38,7 @@ bool Renderer::Initialize(GLFWwindow* window, int width, int height) {
     
     // Initialize bgfx
     bgfx::Init init;
-    init.type = (bgfx::RendererType)bgfx_compat::RENDERER_TYPE_OPENGL;
+    init.type = (bgfx::RendererType)0; // OpenGL = 0
     init.resolution.width = width_;
     init.resolution.height = height_;
     init.resolution.reset = bgfx_compat::RESET_VSYNC;
@@ -53,9 +53,9 @@ bool Renderer::Initialize(GLFWwindow* window, int width, int height) {
     bgfx::setViewRect(viewId_, 0, 0, width_, height_);
     
     // Create uniforms
-    timeUniform_ = bgfx::createUniform("u_time", (bgfx::UniformType)bgfx_compat::UNIFORM_TYPE_VEC4);
-    colorUniform_ = bgfx::createUniform("u_color", (bgfx::UniformType)bgfx_compat::UNIFORM_TYPE_VEC4);
-    transformUniform_ = bgfx::createUniform("u_transform", (bgfx::UniformType)bgfx_compat::UNIFORM_TYPE_MAT4);
+    timeUniform_ = bgfx::createUniform("u_time", (bgfx::UniformType)0); // Vec4 = 0
+    colorUniform_ = bgfx::createUniform("u_color", (bgfx::UniformType)0); // Vec4 = 0
+    transformUniform_ = bgfx::createUniform("u_transform", (bgfx::UniformType)1); // Mat4 = 1
     
     // Create vertex buffers
     if (!CreateBackgroundBuffers()) {
@@ -224,8 +224,8 @@ bool Renderer::CreateBackgroundBuffers() {
     
     // Setup vertex layout first
     backgroundLayout_.begin()
-        .add((bgfx::Attrib)bgfx_compat::ATTRIB_POSITION, 2, (bgfx::AttribType)bgfx_compat::ATTRIB_TYPE_FLOAT) // Position, Float
-        .add((bgfx::Attrib)bgfx_compat::ATTRIB_TEXCOORD0, 2, (bgfx::AttribType)bgfx_compat::ATTRIB_TYPE_FLOAT) // TexCoord0, Float
+        .add((bgfx::Attrib)0, 2, (bgfx::AttribType)0) // Position = 0, Float = 0
+        .add((bgfx::Attrib)1, 2, (bgfx::AttribType)0) // TexCoord0 = 1, Float = 0
         .end();
     
     std::cout << "Creating background vertex buffer..." << std::endl;
@@ -270,8 +270,8 @@ bool Renderer::CreateSpriteBuffers() {
     
     // Setup vertex layout first
     spriteLayout_.begin()
-        .add((bgfx::Attrib)bgfx_compat::ATTRIB_POSITION, 2, (bgfx::AttribType)bgfx_compat::ATTRIB_TYPE_FLOAT) // Position, Float
-        .add((bgfx::Attrib)bgfx_compat::ATTRIB_TEXCOORD0, 2, (bgfx::AttribType)bgfx_compat::ATTRIB_TYPE_FLOAT) // TexCoord0, Float
+        .add((bgfx::Attrib)0, 2, (bgfx::AttribType)0) // Position = 0, Float = 0
+        .add((bgfx::Attrib)1, 2, (bgfx::AttribType)0) // TexCoord0 = 1, Float = 0
         .end();
     
     // Create vertex buffer
