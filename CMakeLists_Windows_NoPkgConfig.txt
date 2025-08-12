@@ -97,7 +97,7 @@ if(NOT GLM_INCLUDE_DIR)
 endif()
 message(STATUS "Found GLM include: ${GLM_INCLUDE_DIR}")
 
-# Find bgfx (try to find it in common locations)
+# Find bgfx and bx (try to find them in common locations)
 set(BGFX_DIRS
     "$ENV{VCPKG_ROOT}/installed/x64-windows"
     "$ENV{VCPKG_ROOT}/installed/x64-windows-static"
@@ -136,10 +136,18 @@ endforeach()
 find_path(BGFX_INCLUDE_DIR NAMES bgfx/bgfx.h PATHS ${BGFX_DIRS} PATH_SUFFIXES include)
 find_library(BGFX_LIBRARY NAMES bgfx bgfxdll PATHS ${BGFX_DIRS} PATH_SUFFIXES lib)
 
+# Also find the bx library (dependency of bgfx)
+find_library(BX_LIBRARY NAMES bx PATHS ${BGFX_DIRS} PATH_SUFFIXES lib)
+
 # Check if we found the real bgfx library
 if(BGFX_INCLUDE_DIR AND BGFX_LIBRARY)
     message(STATUS "Found real bgfx library: ${BGFX_LIBRARY}")
     message(STATUS "Found bgfx include: ${BGFX_INCLUDE_DIR}")
+    if(BX_LIBRARY)
+        message(STATUS "Found bx library: ${BX_LIBRARY}")
+    else()
+        message(STATUS "Warning: bx library not found, bgfx might not link properly")
+    endif()
     set(USE_REAL_BGFX TRUE)
 else()
     message(STATUS "Real bgfx not found, will use stub implementation")
@@ -204,6 +212,12 @@ if(WIN32)
     if(USE_REAL_BGFX)
         target_link_libraries(${PROJECT_NAME} ${BGFX_LIBRARY})
         message(STATUS "Linked with real bgfx library: ${BGFX_LIBRARY}")
+        
+        # Also link with bx library if found
+        if(BX_LIBRARY)
+            target_link_libraries(${PROJECT_NAME} ${BX_LIBRARY})
+            message(STATUS "Linked with bx library: ${BX_LIBRARY}")
+        endif()
     endif()
     
     # Add Windows system libraries

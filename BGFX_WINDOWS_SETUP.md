@@ -20,7 +20,7 @@ cd vcpkg
 .\bootstrap-vcpkg.bat
 ```
 
-### 2. Install bgfx
+### 2. Install bgfx and bx
 
 Run the provided script:
 ```bash
@@ -29,8 +29,10 @@ install-bgfx-windows.bat
 
 Or manually:
 ```bash
-vcpkg install bgfx:x64-windows
+vcpkg install bgfx:x64-windows bx:x64-windows
 ```
+
+**Note**: The `bx` library is a required dependency of bgfx that provides low-level utilities.
 
 ### 3. Set Environment Variable
 
@@ -86,6 +88,10 @@ Linked with real bgfx library: C:/vcpkg/installed/x64-windows/lib/bgfx.lib
 1. Ensure you're building for x64 (not x86)
 2. Make sure Visual Studio has the C++ development tools installed
 3. Verify the bgfx library file exists in the expected location
+4. **Missing bx library**: If you see `unresolved external symbol "bx::debugBreak"`, make sure to install the bx library:
+   ```bash
+   vcpkg install bx:x64-windows
+   ```
 
 ### Runtime Errors
 
