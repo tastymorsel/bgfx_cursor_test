@@ -1,0 +1,302 @@
+cmake_minimum_required(VERSION 3.10)
+project(AsteroidsGame)
+
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Windows-specific settings
+if(WIN32)
+    # Set output directories
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+    
+    # Windows-specific compiler flags
+    add_compile_options(/W4 /EHsc)
+    
+    # Set Windows subsystem to CONSOLE for GLFW compatibility
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:CONSOLE")
+    
+    # Disable pkg-config on Windows
+    set(PKG_CONFIG_EXECUTABLE "")
+    
+    # Find GLFW (try multiple locations)
+    set(GLFW_DIRS
+        "${CMAKE_SOURCE_DIR}/third_party/glfw"
+        "$ENV{VCPKG_ROOT}/installed/x64-windows"
+        "$ENV{VCPKG_ROOT}/installed/x64-windows-static"
+        "C:/vcpkg/installed/x64-windows"
+        "C:/vcpkg/installed/x64-windows-static"
+        "C:/dev/vcpkg/installed/x64-windows"
+        "C:/tools/vcpkg/installed/x64-windows"
+        "$ENV{USERPROFILE}/vcpkg/installed/x64-windows"
+        "$ENV{USERPROFILE}/dev/vcpkg/installed/x64-windows"
+        "$ENV{USERPROFILE}/tools/vcpkg/installed/x64-windows"
+        "C:/Program Files/GLFW"
+        "C:/msys64/mingw64"
+    )
+    
+    # Add current directory and parent directories to search path
+    get_filename_component(CURRENT_DIR ${CMAKE_SOURCE_DIR} NAME)
+    get_filename_component(PARENT_DIR ${CMAKE_SOURCE_DIR} PATH)
+    get_filename_component(GRANDPARENT_DIR ${PARENT_DIR} PATH)
+    
+    list(APPEND GLFW_DIRS
+        "${PARENT_DIR}/vcpkg/installed/x64-windows"
+        "${PARENT_DIR}/vcpkg/installed/x64-windows-static"
+        "${GRANDPARENT_DIR}/vcpkg/installed/x64-windows"
+        "${GRANDPARENT_DIR}/vcpkg/installed/x64-windows-static"
+    )
+    
+    # Remove duplicates and empty paths
+    list(REMOVE_DUPLICATES GLFW_DIRS)
+    list(REMOVE_ITEM GLFW_DIRS "")
+    
+    message(STATUS "Searching for GLFW in:")
+    foreach(dir ${GLFW_DIRS})
+        message(STATUS "  ${dir}")
+    endforeach()
+    
+    find_path(GLFW_INCLUDE_DIR NAMES GLFW/glfw3.h PATHS ${GLFW_DIRS} PATH_SUFFIXES include)
+    find_library(GLFW_LIBRARY NAMES glfw3 glfw3dll PATHS ${GLFW_DIRS} PATH_SUFFIXES lib)
+    
+    if(NOT GLFW_INCLUDE_DIR OR NOT GLFW_LIBRARY)
+        message(FATAL_ERROR "GLFW not found. Please install GLFW or set VCPKG_ROOT environment variable.")
+        message(STATUS "Searched in:")
+        foreach(dir ${GLFW_DIRS})
+            message(STATUS "  ${dir}")
+        endforeach()
+        message(STATUS "You can also set VCPKG_ROOT environment variable to point to your vcpkg installation.")
+    endif()
+    
+    message(STATUS "Found GLFW include: ${GLFW_INCLUDE_DIR}")
+    message(STATUS "Found GLFW library: ${GLFW_LIBRARY}")
+endif()
+
+# Find OpenGL (Windows has it built-in)
+find_package(OpenGL REQUIRED)
+
+# Find GLM (try to find it in common locations)
+set(GLM_DIRS
+    "${CMAKE_SOURCE_DIR}/third_party/glm"
+    "$ENV{VCPKG_ROOT}/installed/x64-windows"
+    "$ENV{VCPKG_ROOT}/installed/x64-windows-static"
+    "C:/vcpkg/installed/x64-windows"
+    "C:/vcpkg/installed/x64-windows-static"
+    "C:/dev/vcpkg/installed/x64-windows"
+    "C:/tools/vcpkg/installed/x64-windows"
+    "$ENV{USERPROFILE}/vcpkg/installed/x64-windows"
+    "$ENV{USERPROFILE}/dev/vcpkg/installed/x64-windows"
+    "$ENV{USERPROFILE}/tools/vcpkg/installed/x64-windows"
+)
+
+find_path(GLM_INCLUDE_DIR NAMES glm/glm.hpp PATHS ${GLM_DIRS} PATH_SUFFIXES include)
+if(NOT GLM_INCLUDE_DIR)
+    message(FATAL_ERROR "GLM not found. Please install GLM or set VCPKG_ROOT environment variable.")
+endif()
+message(STATUS "Found GLM include: ${GLM_INCLUDE_DIR}")
+
+# Find bgfx and bx (try to find them in common locations)
+set(BGFX_DIRS
+    "$ENV{VCPKG_ROOT}/installed/x64-windows"
+    "$ENV{VCPKG_ROOT}/installed/x64-windows-static"
+    "C:/vcpkg/installed/x64-windows"
+    "C:/vcpkg/installed/x64-windows-static"
+    "C:/dev/vcpkg/installed/x64-windows"
+    "C:/tools/vcpkg/installed/x64-windows"
+    "$ENV{USERPROFILE}/vcpkg/installed/x64-windows"
+    "$ENV{USERPROFILE}/dev/vcpkg/installed/x64-windows"
+    "$ENV{USERPROFILE}/tools/vcpkg/installed/x64-windows"
+    "C:/Program Files/bgfx"
+    "C:/bgfx"
+)
+
+# Add current directory and parent directories to search path
+get_filename_component(CURRENT_DIR ${CMAKE_SOURCE_DIR} NAME)
+get_filename_component(PARENT_DIR ${CMAKE_SOURCE_DIR} PATH)
+get_filename_component(GRANDPARENT_DIR ${PARENT_DIR} PATH)
+
+list(APPEND BGFX_DIRS
+    "${PARENT_DIR}/vcpkg/installed/x64-windows"
+    "${PARENT_DIR}/vcpkg/installed/x64-windows-static"
+    "${GRANDPARENT_DIR}/vcpkg/installed/x64-windows"
+    "${GRANDPARENT_DIR}/vcpkg/installed/x64-windows-static"
+)
+
+# Remove duplicates and empty paths
+list(REMOVE_DUPLICATES BGFX_DIRS)
+list(REMOVE_ITEM BGFX_DIRS "")
+
+message(STATUS "Searching for bgfx in:")
+foreach(dir ${BGFX_DIRS})
+    message(STATUS "  ${dir}")
+endforeach()
+
+find_path(BGFX_INCLUDE_DIR NAMES bgfx/bgfx.h PATHS ${BGFX_DIRS} PATH_SUFFIXES include)
+find_library(BGFX_LIBRARY NAMES bgfx bgfxdll PATHS ${BGFX_DIRS} PATH_SUFFIXES lib)
+
+# Also find the bx and bimg libraries (dependencies of bgfx)
+find_library(BX_LIBRARY NAMES bx PATHS ${BGFX_DIRS} PATH_SUFFIXES lib)
+find_library(BIMG_LIBRARY NAMES bimg PATHS ${BGFX_DIRS} PATH_SUFFIXES lib)
+
+# Check if we found the real bgfx library
+if(BGFX_INCLUDE_DIR AND BGFX_LIBRARY)
+    message(STATUS "Found real bgfx library: ${BGFX_LIBRARY}")
+    message(STATUS "Found bgfx include: ${BGFX_INCLUDE_DIR}")
+    if(BX_LIBRARY)
+        message(STATUS "Found bx library: ${BX_LIBRARY}")
+    else()
+        message(STATUS "Warning: bx library not found, bgfx might not link properly")
+    endif()
+    
+    if(BIMG_LIBRARY)
+        message(STATUS "Found bimg library: ${BIMG_LIBRARY}")
+    else()
+        message(STATUS "Warning: bimg library not found, bgfx might not link properly")
+    endif()
+    set(USE_REAL_BGFX TRUE)
+else()
+    message(STATUS "Real bgfx not found, will use stub implementation")
+    set(USE_REAL_BGFX FALSE)
+endif()
+
+# Include directories
+include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/third_party/miniaudio)
+include_directories(${CMAKE_SOURCE_DIR}/third_party/glm)
+if(WIN32)
+    include_directories(${GLFW_INCLUDE_DIR})
+    include_directories(${GLM_INCLUDE_DIR})
+    
+    # Use real bgfx if available, otherwise use stub
+    if(USE_REAL_BGFX)
+        include_directories(${BGFX_INCLUDE_DIR})
+        message(STATUS "Using real bgfx - will include real bgfx headers")
+    else()
+        include_directories(${CMAKE_SOURCE_DIR}/third_party/bgfx/include)
+        message(STATUS "Using bgfx stub - will include stub headers")
+    endif()
+else()
+    # On non-Windows, always use stub
+    include_directories(${CMAKE_SOURCE_DIR}/third_party/bgfx/include)
+endif()
+
+# Source files
+set(SOURCES
+    src/main.cpp
+    src/game.cpp
+    src/renderer.cpp
+    src/audio.cpp
+    src/entity.cpp
+    src/player.cpp
+    src/asteroid.cpp
+    src/bullet.cpp
+    src/particle_system.cpp
+    src/shader_utils.cpp
+    third_party/miniaudio/miniaudio.cpp
+)
+
+# Conditionally add bgfx source files
+if(WIN32 AND USE_REAL_BGFX)
+    message(STATUS "Using real bgfx library - no stub sources needed")
+else()
+    message(STATUS "Using bgfx stub implementation")
+    list(APPEND SOURCES third_party/bgfx/src/bgfx.cpp)
+endif()
+
+# Create executable
+add_executable(${PROJECT_NAME} ${SOURCES})
+
+# Link libraries
+if(WIN32)
+    target_link_libraries(${PROJECT_NAME} 
+        ${GLFW_LIBRARY}
+        OpenGL::GL
+    )
+    
+    # Add real bgfx library if available
+    if(USE_REAL_BGFX)
+        target_link_libraries(${PROJECT_NAME} ${BGFX_LIBRARY})
+        message(STATUS "Linked with real bgfx library: ${BGFX_LIBRARY}")
+        
+        # Also link with bx library if found
+        if(BX_LIBRARY)
+            target_link_libraries(${PROJECT_NAME} ${BX_LIBRARY})
+            message(STATUS "Linked with bx library: ${BX_LIBRARY}")
+        endif()
+        
+        # Also link with bimg library if found
+        if(BIMG_LIBRARY)
+            target_link_libraries(${PROJECT_NAME} ${BIMG_LIBRARY})
+            message(STATUS "Linked with bimg library: ${BIMG_LIBRARY}")
+        endif()
+    endif()
+    
+    # Add Windows system libraries
+    target_link_libraries(${PROJECT_NAME}
+        kernel32
+        user32
+        gdi32
+        winspool
+        shell32
+        ole32
+        oleaut32
+        uuid
+        comdlg32
+        advapi32
+    )
+    
+    # Copy GLFW DLL to output directory if using dynamic linking
+    if(GLFW_LIBRARY MATCHES ".*glfw3dll.*")
+        get_filename_component(GLFW_DLL_DIR ${GLFW_LIBRARY} DIRECTORY)
+        file(GLOB GLFW_DLL "${GLFW_DLL_DIR}/glfw3.dll")
+        if(GLFW_DLL)
+            add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${GLFW_DLL} $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+        endif()
+    endif()
+    
+    # Copy bgfx DLL to output directory if using dynamic linking and real bgfx
+    if(USE_REAL_BGFX AND BGFX_LIBRARY MATCHES ".*bgfxdll.*")
+        get_filename_component(BGFX_DLL_DIR ${BGFX_LIBRARY} DIRECTORY)
+        file(GLOB BGFX_DLL "${BGFX_DLL_DIR}/bgfx.dll")
+        if(BGFX_DLL)
+            add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${BGFX_DLL} $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+            message(STATUS "Will copy bgfx.dll to output directory")
+        endif()
+    endif()
+else()
+    target_link_libraries(${PROJECT_NAME} 
+        glfw 
+        OpenGL::GL
+        m
+        dl
+        pthread
+    )
+endif()
+
+# Set debugger working directory
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+)
+
+# Copy assets folder to build directory
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/assets
+    $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
+    COMMENT "Copying assets folder to build directory"
+)
+
+# Windows-specific properties
+if(WIN32)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        WIN32_EXECUTABLE TRUE
+        VS_DEBUGGER_ENVIRONMENT "PATH=${CMAKE_SOURCE_DIR}/bin;$ENV{PATH}"
+        VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    )
+endif()
